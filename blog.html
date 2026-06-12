@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog &amp; Stories — Jeevarasi | The Nature & Pet Sanctuary | Conservation &amp; Education Stories</title>
+  <meta name="description" content="Read stories, field reports, and conservation updates from Jeevarasi — The Nature and Pet Sanctuary in Pondicherry. Experiential education and wildlife conservation.">
+  <link rel="icon" type="image/png" href="images/logo.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <style>
+    /* Blog-specific extras */
+    .blog-header-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 30px; }
+    .blog-tag { background: #edf7da; color: var(--primary-dark); padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; font-family: var(--font-nav); letter-spacing: 0.5px; cursor: pointer; transition: var(--transition); }
+    .blog-tag:hover, .blog-tag.active { background: var(--primary); color: var(--white); }
+    .news-card .news-body p { -webkit-line-clamp: 3; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
+    .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 50px; }
+    .pagination a { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--border); border-radius: 2px; font-family: var(--font-nav); font-size: 14px; font-weight: 600; color: var(--text); transition: var(--transition); }
+    .pagination a:hover, .pagination a.active { background: var(--primary); border-color: var(--primary); color: var(--white); }
+    .featured-post { display: grid; grid-template-columns: 1.3fr 1fr; gap: 0; background: var(--white); border-radius: 4px; overflow: hidden; box-shadow: var(--shadow-hover); margin-bottom: 50px; }
+    .featured-post .news-thumb { height: 100%; min-height: 380px; }
+    .featured-post .news-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .featured-post .news-body { padding: 40px; display: flex; flex-direction: column; justify-content: center; }
+    .featured-label { display: inline-block; background: var(--primary); color: var(--white); font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 5px 14px; border-radius: 2px; margin-bottom: 16px; }
+    .featured-post .news-body h2 { font-size: clamp(20px, 2.5vw, 26px); margin-bottom: 14px; line-height: 1.4; }
+    .featured-post .news-body p { font-size: 15px; }
+    @media (max-width: 768px) {
+      .featured-post { grid-template-columns: 1fr; }
+      .featured-post .news-thumb { min-height: 250px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="container">
+      <div class="top-bar-left">
+        <div class="top-bar-info"><i class="fas fa-phone fa-rotate-90"></i><a href="tel:09842829770">098428 29770</a></div>
+        <div class="top-bar-info"><i class="fas fa-envelope"></i><a href="mailto:info@jeevarsi.org">info@jeevarsi.org</a></div>
+        <div class="top-bar-info"><i class="fas fa-map-marker-alt"></i><span>Pondicherry, India</span></div>
+      </div>
+      <div class="top-bar-right">
+        <div class="social-icons">
+          <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+          <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="site-header" id="site-header">
+    <div class="container">
+      <div class="header-inner">
+        <div class="site-logo">
+          <a href="index.html">
+            <img src="images/logo.png" alt="Jeevarasi Logo" onerror="this.style.display='none'">
+            <div class="logo-text">Jeevarasi<span>The Nature & Pet Sanctuary</span></div>
+          </a>
+        </div>
+        <button class="menu-toggle" aria-controls="main-navigation" aria-expanded="false" aria-label="Toggle menu">
+          <span></span><span></span><span></span>
+        </button>
+        <nav class="main-nav" id="main-navigation">
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="index.html#focus-areas">Focus Areas</a></li>
+            <li><a href="index.html#gallery">Gallery</a></li>
+            <li class="active"><a href="blog.html">Blog</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </nav>
+        <div class="header-donate">
+          <a href="contact.html#volunteer" class="btn btn-primary">Get Involved</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- PAGE BANNER -->
+  <div class="page-banner">
+    <div class="container">
+      <h1>Stories from the Sanctuary,<br>Moments that Matter</h1>
+      <div class="breadcrumb">
+        <a href="index.html">Home</a>
+        <span>/</span>
+        <span>Blog &amp; Stories</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOG SECTION -->
+  <section class="blog-section">
+    <div class="container">
+
+      <!-- Filter Tags -->
+      <div class="blog-header-meta reveal">
+        <button class="blog-tag active" data-tag="all" id="blog-tag-all">All Stories</button>
+        <button class="blog-tag" data-tag="pet" id="blog-tag-pet">Pet Sanctuary</button>
+        <button class="blog-tag" data-tag="nature" id="blog-tag-nature">Nature Sanctuary</button>
+        <button class="blog-tag" data-tag="education" id="blog-tag-education">Education</button>
+        <button class="blog-tag" data-tag="environment" id="blog-tag-environment">Environment</button>
+        <button class="blog-tag" data-tag="community" id="blog-tag-community">Community</button>
+      </div>
+
+      <!-- Featured Post -->
+      <div class="featured-post reveal">
+        <div class="news-thumb">
+          <img src="images/blog-1.jpg" alt="520 Trees Planted">
+        </div>
+        <div class="news-body">
+          <span class="featured-label">Featured Report</span>
+          <div class="news-meta">
+            <span><i class="fas fa-calendar-alt"></i> March 2025</span>
+            <span><i class="fas fa-tag"></i> Forest Restoration</span>
+          </div>
+          <h2>Jeevarasi Trust Founded — A New Chapter in Conservation Begins</h2>
+          <div class="news-data"><i class="fas fa-seedling"></i> Sep 2022 · Pondicherry · Trust started</div>
+          <p>Jeevarasi — The Nature and Pet Sanctuary was founded as a Pondicherry-based Trust with a vision to bring people closer to the wild through experiential education, conservation, and safe coexistence between humans and animals.</p>
+          <a href="#" class="btn btn-primary btn-arrow" style="margin-top: 16px; display: inline-flex; align-items: center; gap: 8px;">Read Full Report</a>
+        </div>
+      </div>
+
+      <!-- Blog Grid -->
+      <div class="blog-grid-full">
+
+        <div class="news-card reveal reveal-delay-1">
+          <div class="news-thumb img-zoom">
+            <img src="images/blog-2.jpg" alt="Experiential Education">
+            <span class="news-cat">Education</span>
+          </div>
+          <div class="news-body">
+            <div class="news-meta">
+              <span><i class="fas fa-calendar-alt"></i> Ongoing</span>
+              <span><i class="fas fa-user"></i> Education Team</span>
+            </div>
+            <h3><a href="#">Experiential Education at Jeevarasi — Learning by Experience</a></h3>
+            <div class="news-data"><i class="fas fa-users"></i> 3,000+ students · 200+ schools &amp; NGOs</div>
+            <p>Our preferred teaching approach helps guests understand conservation better through observation, touch, feel, and build experiences — reconnecting children and adults with the natural world.</p>
+            <a href="#" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <div class="news-card reveal reveal-delay-2">
+          <div class="news-thumb img-zoom">
+            <img src="images/blog-3.jpg" alt="Environment Protection">
+            <span class="news-cat">Environment</span>
+          </div>
+          <div class="news-body">
+            <div class="news-meta">
+              <span><i class="fas fa-calendar-alt"></i> Ongoing</span>
+              <span><i class="fas fa-user"></i> Conservation Team</span>
+            </div>
+            <h3><a href="#">200+ Hectares Restored — A Step Towards a Greener Future</a></h3>
+            <div class="news-data"><i class="fas fa-recycle"></i> 15+ tonnes plastic · 20+ cleanup drives · 3 Lakhs+ trees</div>
+            <p>Through persistent community action and awareness programmes, we have restored over 200 hectares of land, collected 15+ tonnes of plastic waste, and planted 3+ lakh trees.</p>
+            <a href="#" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <div class="news-card reveal reveal-delay-3">
+          <div class="news-thumb img-zoom">
+            <img src="images/gallery-6.jpg" alt="Pet Sanctuary">
+            <span class="news-cat">Pet Sanctuary</span>
+          </div>
+          <div class="news-body">
+            <div class="news-meta">
+              <span><i class="fas fa-calendar-alt"></i> Ongoing</span>
+              <span><i class="fas fa-user"></i> Sanctuary Team</span>
+            </div>
+            <h3><a href="#">Close Encounters at the Pet Sanctuary — Birds, Reptiles &amp; Mammals</a></h3>
+            <div class="news-data"><i class="fas fa-paw"></i> Exotic species · Hands-on interaction</div>
+            <p>Our pet sanctuary offers an experiential approach to learning about birds, reptiles, rodents, amphibians, fishes, and mammals — including exotic species not found in the Indian subcontinent.</p>
+            <a href="#" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <div class="news-card reveal reveal-delay-1">
+          <div class="news-thumb img-zoom">
+            <img src="images/gallery-5.jpg" alt="Nature Sanctuary">
+            <span class="news-cat">Nature Sanctuary</span>
+          </div>
+          <div class="news-body">
+            <div class="news-meta">
+              <span><i class="fas fa-calendar-alt"></i> Ongoing</span>
+              <span><i class="fas fa-user"></i> Conservation Team</span>
+            </div>
+            <h3><a href="#">Nature Sanctuary — Preserving Exotic Plants from Around the World</a></h3>
+            <div class="news-data"><i class="fas fa-leaf"></i> Exotic plants · Global species · Conservation</div>
+            <p>Our nature sanctuary preserves exotic plant species from around the world, educating enthusiasts about each plant and the need for conservation and protection.</p>
+            <a href="#" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <div class="news-card reveal reveal-delay-2">
+          <div class="news-thumb img-zoom">
+            <img src="images/gallery-4.jpg" alt="Workshop">
+            <span class="news-cat">Education</span>
+          </div>
+          <div class="news-body">
+            <div class="news-meta">
+              <span><i class="fas fa-calendar-alt"></i> Ongoing</span>
+              <span><i class="fas fa-user"></i> Education Team</span>
+            </div>
+            <h3><a href="#">Conservation Workshops — Building Citizen Scientists</a></h3>
+            <div class="news-data"><i class="fas fa-chalkboard-teacher"></i> 10+ workshops · Awareness &amp; education</div>
+            <p>Our workshops educate enthusiasts on various species and their need of conservation, creating responsible citizen scientists who spread awareness at every level.</p>
+            <a href="#" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+        <div class="news-card reveal reveal-delay-3">
+          <div class="news-thumb img-zoom">
+            <img src="images/gallery-2.jpg" alt="Community">
+            <span class="news-cat">Community</span>
+          </div>
+          <div class="news-body">
+            <div class="news-meta">
+              <span><i class="fas fa-calendar-alt"></i> Ongoing</span>
+              <span><i class="fas fa-user"></i> Community Team</span>
+            </div>
+            <h3><a href="#">Wildlife Conservation Research — 30+ Projects and Counting</a></h3>
+            <div class="news-data"><i class="fas fa-search"></i> 30+ research projects · Citizen science</div>
+            <p>Involving citizen scientists in research facilities to help in the awareness and conservation of specific species that are much needed in protection and conservation in nature.</p>
+            <a href="#" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination">
+        <a href="#" class="active" aria-current="page">1</a>
+        <a href="#" aria-label="Page 2">2</a>
+        <a href="#" aria-label="Page 3">3</a>
+        <a href="#" aria-label="Next page"><i class="fas fa-angle-right"></i></a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- NEWSLETTER -->
+  <section id="newsletter">
+    <div class="container">
+      <div class="newsletter-inner">
+        <div class="newsletter-text">
+          <h3>Never Miss a Sanctuary Update</h3>
+          <p>Get conservation stories, sanctuary updates, and event announcements straight to your inbox.</p>
+        </div>
+        <form class="newsletter-form" action="#" method="post">
+          <label for="nl-email-blog" class="sr-only">Email</label>
+          <input type="email" id="nl-email-blog" placeholder="Your email address" required>
+          <button type="submit">Subscribe</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer id="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col footer-about">
+          <div class="footer-logo">
+            <img src="images/logo.png" alt="Jeevarasi" onerror="this.style.display='none'">
+            <span class="footer-logo-text">Jeevarasi</span>
+          </div>
+          <p>Jeevarasi — The Nature and Pet Sanctuary is a one-of-a-kind educational and experiential park in Pondicherry, bringing people closer to wildlife through conservation, education, and safe coexistence.</p>
+          <div class="footer-social">
+            <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+            <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h5>Quick Links</h5>
+          <nav class="footer-links">
+            <a href="index.html">Home</a>
+            <a href="about.html">About Us</a>
+            <a href="index.html#focus-areas">Focus Areas</a>
+            <a href="index.html#gallery">Gallery</a>
+            <a href="blog.html">Blog &amp; Stories</a>
+            <a href="contact.html">Contact</a>
+          </nav>
+        </div>
+        <div class="footer-col">
+          <h5>Contact Us</h5>
+          <div class="footer-contact-item"><i class="fas fa-phone fa-rotate-90"></i><div><a href="tel:09842829770">098428 29770</a></div></div>
+          <div class="footer-contact-item"><i class="fas fa-envelope"></i><div><a href="mailto:info@jeevarsi.org">info@jeevarsi.org</a></div></div>
+          <div class="footer-contact-item"><i class="fas fa-map-marker-alt"></i><div>Pondicherry, India — 605 001</div></div>
+        </div>
+      </div>
+      <hr class="footer-divider">
+    </div>
+    <div class="copyright-bar">
+      <p>&copy; 2025 <a href="index.html">Jeevarasi</a>. All rights reserved.<a href="admin.html" style="margin-left: 12px; color: inherit; opacity: 0.6; font-size: 12px;">Admin Login</a></p>
+    </div>
+  </footer>
+
+  <button id="scroll-top" aria-label="Scroll to top"><i class="fas fa-chevron-up"></i></button>
+  <script src="js/counter.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

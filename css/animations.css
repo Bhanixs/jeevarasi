@@ -1,0 +1,198 @@
+/* =============================================
+   JEEVARSI TRUST — ANIMATIONS
+   ============================================= */
+
+/* ---- Fade In Up (on scroll) ---- */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+
+/* ---- Fade In Left ---- */
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-50px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.reveal-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ---- Fade In Right ---- */
+.reveal-right {
+  opacity: 0;
+  transform: translateX(50px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.reveal-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ---- Scale In ---- */
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal-scale.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ---- Pulse animation (for icons) ---- */
+@keyframes pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(119,199,32,0.4); }
+  50% { transform: scale(1.05); box-shadow: 0 0 0 12px rgba(119,199,32,0); }
+}
+.pulse { animation: pulse 2.5s infinite; }
+
+/* ---- Bounce arrow ---- */
+@keyframes bounceArrow {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(6px); }
+}
+.read-more:hover i { animation: bounceArrow 0.5s ease infinite; }
+
+/* ---- Floating element ---- */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.float-anim { animation: float 4s ease-in-out infinite; }
+
+/* ---- Spinner (for form submission) ---- */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: var(--white);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+/* ---- Gradient text shimmer ---- */
+@keyframes shimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.shimmer-text {
+  background: linear-gradient(90deg, #77c720, #a8e04f, #5c9e14, #77c720);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 4s ease infinite;
+}
+
+/* ---- Ripple on click ---- */
+.btn { position: relative; overflow: hidden; }
+.btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255,255,255,0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.4s ease, height 0.4s ease, opacity 0.4s ease;
+  opacity: 0;
+}
+.btn:active::after { width: 300px; height: 300px; opacity: 1; transition: 0s; }
+
+/* ---- Card hover lifts ---- */
+.focus-card, .news-card, .involve-card, .trans-card {
+  will-change: transform;
+}
+
+/* ---- Nav underline hover ---- */
+.main-nav ul li a {
+  position: relative;
+}
+.main-nav ul li a::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 14px;
+  right: 14px;
+  height: 2px;
+  background: var(--primary);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+.main-nav ul li a:hover::after,
+.main-nav ul li.active a::after {
+  transform: scaleX(1);
+}
+
+/* ---- Typewriter cursor blink ---- */
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* ---- Section wave separator ---- */
+.wave-separator {
+  position: relative;
+  margin-bottom: -2px;
+}
+.wave-separator svg { display: block; }
+
+/* ---- Image hover zoom smooth ---- */
+.img-zoom { overflow: hidden; }
+.img-zoom img { transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+.img-zoom:hover img { transform: scale(1.08); }
+
+/* ---- Stats strip count pop ---- */
+@keyframes countPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); color: #ffffff; }
+  100% { transform: scale(1); }
+}
+.count-done { animation: countPop 0.4s ease; }
+
+/* ---- Overlay slide in from bottom ---- */
+.gallery-overlay {
+  clip-path: inset(100% 0 0 0);
+  transition: clip-path 0.4s ease, background 0.4s ease;
+}
+.gallery-item:hover .gallery-overlay {
+  clip-path: inset(0 0 0 0);
+}
+
+/* ---- Top bar scroll hide/show ---- */
+.top-bar {
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  max-height: 60px;
+  overflow: hidden;
+}
+.top-bar.hidden { max-height: 0; opacity: 0; }
+
+/* ---- Focus card icon spin on hover ---- */
+.focus-card:hover .focus-card-icon {
+  animation: spin 0.5s ease;
+}
+
+/* ---- Pillar slide in ---- */
+.pillar { transition: background 0.3s ease, transform 0.3s ease, border-color 0.3s ease; }
+
+/* ---- Stat item scale ---- */
+.stat-item { transition: background 0.3s ease; }
+.stat-item:hover { background: rgba(255,255,255,0.12); }
