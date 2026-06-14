@@ -323,6 +323,7 @@
     const container = document.getElementById('events-list');
     if (!arr.length) {
       container.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-alt"></i><p>No events yet. Add your first event!</p></div>';
+      bindEventsEvents();
       return;
     }
     container.innerHTML = '<table class="admin-table"><thead><tr>' +
@@ -459,6 +460,7 @@
     const container = document.getElementById('projects-list');
     if (!arr.length) {
       container.innerHTML = '<div class="empty-state"><i class="fas fa-project-diagram"></i><p>No projects yet. Add your first project!</p></div>';
+      bindProjectsEvents();
       return;
     }
     container.innerHTML = '<table class="admin-table"><thead><tr>' +
@@ -585,6 +587,7 @@
     const container = document.getElementById('fundraising-list');
     if (!arr.length) {
       container.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><i class="fas fa-hand-holding-usd"></i><p>No campaigns yet. Create your first fundraising campaign!</p></div>';
+      bindFundraisingEvents();
       return;
     }
     container.innerHTML = arr.map(function (c) {

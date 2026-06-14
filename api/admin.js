@@ -25,16 +25,17 @@ const DB_ORDER = {
 function sbUrl() {
   const u = process.env.SUPABASE_URL;
   if (!u) throw new Error('SUPABASE_URL not set');
-  return u.replace(/\/$/, '');
+  // Strip trailing /rest/v1 or /storage/v1 if user included it in the URL
+  return u.replace(/\/(rest|storage)\/v1\/?.*$/, '').replace(/\/$/, '');
 }
 function sbAnon() {
-  const k = process.env.SUPABASE_ANON_KEY;
-  if (!k) throw new Error('SUPABASE_ANON_KEY not set');
+  const k = process.env.SUPABASE_ANON;
+  if (!k) throw new Error('SUPABASE_ANON not set');
   return k;
 }
 function sbService() {
-  const k = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!k) throw new Error('SUPABASE_SERVICE_ROLE_KEY not set');
+  const k = process.env.SUPABASE_SERVICE;
+  if (!k) throw new Error('SUPABASE_SERVICE not set');
   return k;
 }
 
