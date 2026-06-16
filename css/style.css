@@ -1388,3 +1388,85 @@ p:last-child { margin-bottom: 0; }
   .pub-project-grid,
   .pub-campaign-grid { grid-template-columns: 1fr; }
 }
+
+/* ── PUBLIC MODALS (Register / Donate) ──────────────────── */
+.pub-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+  backdrop-filter: blur(3px);
+}
+.pub-modal-box {
+  background: #fff;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  animation: pubModalIn 0.22s ease;
+}
+@keyframes pubModalIn {
+  from { opacity: 0; transform: translateY(-16px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.pub-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 28px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.pub-modal-header h3 {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  color: var(--heading);
+  margin: 0;
+}
+.pub-modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--text-light);
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: var(--transition);
+}
+.pub-modal-close:hover { background: var(--bg-light); color: var(--heading); }
+.pub-form-group {
+  margin-bottom: 16px;
+}
+.pub-form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--heading);
+  margin-bottom: 6px;
+}
+.pub-form-group input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: var(--font-body);
+  color: var(--text);
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.pub-form-group input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+.pub-modal-footer {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}

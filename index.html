@@ -662,6 +662,55 @@
   <!-- Scroll to top -->
   <button id="scroll-top" aria-label="Scroll to top"><i class="fas fa-chevron-up"></i></button>
 
+  <!-- EVENT REGISTRATION MODAL -->
+  <div id="register-modal" class="pub-modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="register-modal-title">
+    <div class="pub-modal-box">
+      <div class="pub-modal-header">
+        <h3 id="register-modal-title">Register to Join</h3>
+        <button class="pub-modal-close" id="register-modal-close" aria-label="Close"><i class="fas fa-times"></i></button>
+      </div>
+      <p id="register-modal-event-name" style="color:var(--text-light);font-size:14px;margin:-4px 0 20px;padding:0 28px;"></p>
+      <form id="register-modal-form" novalidate style="padding:0 28px 28px;">
+        <input type="hidden" id="reg-event-id">
+        <input type="hidden" id="reg-event-title">
+        <div class="pub-form-group">
+          <label for="reg-name">Full Name *</label>
+          <input type="text" id="reg-name" placeholder="Your full name" required>
+        </div>
+        <div class="pub-form-group">
+          <label for="reg-email">Email Address *</label>
+          <input type="email" id="reg-email" placeholder="your@email.com" required>
+        </div>
+        <div class="pub-form-group">
+          <label for="reg-phone">Phone Number</label>
+          <input type="tel" id="reg-phone" placeholder="+91 98765 43210">
+        </div>
+        <p id="register-error" style="color:#d32f2f;font-size:13px;display:none;margin-bottom:12px;"></p>
+        <div class="pub-modal-footer">
+          <button type="button" class="btn btn-outline" id="register-cancel-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="register-submit-btn">Register Now</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- DONATE QR MODAL -->
+  <div id="donate-modal" class="pub-modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="donate-modal-title">
+    <div class="pub-modal-box" style="max-width:400px;">
+      <div class="pub-modal-header">
+        <h3 id="donate-modal-title">Donate Now</h3>
+        <button class="pub-modal-close" id="donate-modal-close" aria-label="Close"><i class="fas fa-times"></i></button>
+      </div>
+      <div style="padding:24px 28px 28px;text-align:center;">
+        <p id="donate-campaign-name" style="font-weight:600;font-size:16px;color:var(--heading);margin-bottom:6px;"></p>
+        <p style="color:var(--text-light);font-size:13px;margin-bottom:20px;">Scan the QR code below with any UPI app to donate</p>
+        <img id="donate-qr-img" src="" alt="UPI QR Code" style="width:220px;height:220px;object-fit:contain;border:2px solid var(--border);border-radius:8px;display:block;margin:0 auto 20px;">
+        <p style="font-size:12px;color:var(--text-light);">GPay · PhonePe · Paytm · Any UPI app</p>
+        <button type="button" class="btn btn-primary" id="donate-close-btn" style="margin-top:20px;width:100%;">Close</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script src="js/counter.js"></script>
   <script src="js/stats-loader.js"></script>

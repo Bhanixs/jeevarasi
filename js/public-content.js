@@ -22,6 +22,9 @@
         var thumb = ev.image_url
           ? 'background:url(' + ev.image_url + ') center/cover no-repeat'
           : 'background:var(--bg-light)';
+        var registerBtn = ev.status === 'open'
+          ? '<button class="btn btn-primary pub-register-btn" style="margin-top:16px;width:100%;" data-id="' + esc(ev.id) + '" data-title="' + esc(ev.title) + '"><i class="fas fa-user-plus"></i> Register to Join</button>'
+          : '<p style="margin-top:16px;font-size:13px;color:var(--text-light);text-align:center;"><i class="fas fa-lock"></i> Registration closed</p>';
         return '<div class="news-card pub-event-card reveal reveal-delay-' + delay + '">' +
           '<div class="news-thumb" style="' + thumb + '; height:210px; position:relative;">' +
           (dateStr ? '<span class="event-date-badge"><i class="fas fa-calendar-alt"></i> ' + dateStr + '</span>' : '') +
@@ -31,8 +34,15 @@
           '<h3>' + esc(ev.title) + '</h3>' +
           (ev.description ? '<p>' + esc(ev.description.substring(0, 120)) + (ev.description.length > 120 ? '…' : '') + '</p>' : '') +
           (ev.location ? '<p style="font-size:13px;color:var(--text-light);margin-top:8px;"><i class="fas fa-map-marker-alt"></i> ' + esc(ev.location) + '</p>' : '') +
+          registerBtn +
           '</div></div>';
       }).join('');
+
+      grid.querySelectorAll('.pub-register-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          openRegisterModal(btn.dataset.id, btn.dataset.title);
+        });
+      });
 
       observeReveal(grid);
     } catch (err) {
@@ -87,6 +97,9 @@
       grid.innerHTML = items.map(function (c, i) {
         var pct = c.goal_amount > 0 ? Math.min(Math.round((c.raised_amount / c.goal_amount) * 100), 100) : 0;
         var delay = (i % 3) + 1;
+        var donateBtn = c.qr_code_url
+          ? '<button class="btn btn-primary pub-donate-btn" style="margin-top:16px;width:100%;" data-qr="' + esc(c.qr_code_url) + '" data-title="' + esc(c.title) + '"><i class="fas fa-qrcode"></i> Donate Now</button>'
+          : '';
         return '<div class="pub-campaign-card reveal reveal-delay-' + delay + '">' +
           (c.image_url ? '<img src="' + esc(c.image_url) + '" alt="' + esc(c.title) + '" style="width:calc(100% + 56px);height:180px;object-fit:cover;margin:-28px -28px 12px;border-radius:4px 4px 0 0;">' : '') +
           '<h3>' + esc(c.title) + '</h3>' +
@@ -99,13 +112,55 @@
           '<div style="background:var(--primary);width:' + pct + '%;height:100%;border-radius:4px;transition:width 1.2s ease;"></div>' +
           '</div>' +
           '<p class="pub-campaign-pct">' + pct + '% funded</p>' +
+          donateBtn +
           '</div>';
       }).join('');
+
+      grid.querySelectorAll('.pub-donate-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          openDonateModal(btn.dataset.title, btn.dataset.qr);
+        });
+      });
 
       observeReveal(grid);
     } catch (err) {
       console.error('Fundraising load error:', err);
     }
+  }
+
+  // ── REGISTRATION MODAL ────────────────────────────────────
+  function openRegisterModal(eventId, eventTitle) {
+    var modal = document.getElementById('register-modal');
+    if (!modal) return;
+    document.getElementById('reg-event-id').value = eventId || '';
+    document.getElementById('reg-event-title').value = eventTitle || '';
+    document.getElementById('register-modal-event-name').textContent = eventTitle || '';
+    document.getElementById('register-modal-form').reset();
+    document.getElementById('register-error').style.display = 'none';
+    document.getElementById('register-submit-btn').disabled = false;
+    document.getElementById('register-submit-btn').innerHTML = 'Register Now';
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeRegisterModal() {
+    var modal = document.getElementById('register-modal');
+    if (modal) { modal.style.display = 'none'; document.body.style.overflow = ''; }
+  }
+
+  // ── DONATE MODAL ──────────────────────────────────────────
+  function openDonateModal(title, qrUrl) {
+    var modal = document.getElementById('donate-modal');
+    if (!modal) return;
+    document.getElementById('donate-campaign-name').textContent = title || '';
+    document.getElementById('donate-qr-img').src = qrUrl || '';
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeDonateModal() {
+    var modal = document.getElementById('donate-modal');
+    if (modal) { modal.style.display = 'none'; document.body.style.overflow = ''; }
   }
 
   // ── REVEAL ANIMATION ─────────────────────────────────────
@@ -135,6 +190,75 @@
     loadPublicEvents();
     loadPublicProjects();
     loadPublicFundraising();
+
+    // Registration modal
+    var regModal = document.getElementById('register-modal');
+    if (regModal) {
+      document.getElementById('register-modal-close').addEventListener('click', closeRegisterModal);
+      document.getElementById('register-cancel-btn').addEventListener('click', closeRegisterModal);
+      regModal.addEventListener('click', function (e) { if (e.target === regModal) closeRegisterModal(); });
+
+      document.getElementById('register-modal-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var submitBtn = document.getElementById('register-submit-btn');
+        var errorEl = document.getElementById('register-error');
+        var name = document.getElementById('reg-name').value.trim();
+        var email = document.getElementById('reg-email').value.trim();
+        var phone = document.getElementById('reg-phone').value.trim();
+        var eventId = document.getElementById('reg-event-id').value;
+        var eventTitle = document.getElementById('reg-event-title').value;
+
+        if (!name || !email) {
+          errorEl.textContent = 'Name and email are required.';
+          errorEl.style.display = 'block';
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
+        errorEl.style.display = 'none';
+
+        try {
+          var res = await fetch('/api/admin?action=event_register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ event_id: eventId, event_title: eventTitle, name: name, email: email, phone: phone })
+          });
+          var data = await res.json();
+          if (data.success) {
+            submitBtn.innerHTML = '<i class="fas fa-check"></i> Registered!';
+            submitBtn.style.background = 'var(--primary-dark)';
+            setTimeout(function () {
+              closeRegisterModal();
+              submitBtn.style.background = '';
+            }, 1800);
+          } else {
+            errorEl.textContent = data.error || 'Registration failed. Please try again.';
+            errorEl.style.display = 'block';
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Register Now';
+          }
+        } catch (err) {
+          errorEl.textContent = 'Network error. Please try again.';
+          errorEl.style.display = 'block';
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = 'Register Now';
+        }
+      });
+    }
+
+    // Donate modal
+    var donateModal = document.getElementById('donate-modal');
+    if (donateModal) {
+      document.getElementById('donate-modal-close').addEventListener('click', closeDonateModal);
+      document.getElementById('donate-close-btn').addEventListener('click', closeDonateModal);
+      donateModal.addEventListener('click', function (e) { if (e.target === donateModal) closeDonateModal(); });
+    }
+
+    // Escape key closes either modal
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { closeRegisterModal(); closeDonateModal(); }
+    });
   });
 
 })();

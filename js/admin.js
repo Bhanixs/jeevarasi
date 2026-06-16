@@ -121,6 +121,7 @@
         events: loadEvents,
         projects: loadProjects,
         fundraising: loadFundraising,
+        registrations: loadRegistrations,
         contacts: loadContacts,
         newsletter: loadNewsletter
       };
@@ -610,6 +611,7 @@
         '<button class="btn btn-sm btn-outline toggle-campaign-btn" data-id="' + c.id + '" data-status="' + c.status + '"><i class="fas fa-toggle-' + (c.status === 'active' ? 'on' : 'off') + '"></i> ' + (c.status === 'active' ? 'Close' : 'Reopen') + '</button>' +
         '<button class="btn btn-sm ' + (c.is_published ? 'btn-outline' : 'btn-success') + ' publish-campaign-btn" data-id="' + c.id + '" data-published="' + (c.is_published ? 'true' : 'false') + '" title="' + (c.is_published ? 'Unpublish' : 'Publish') + '"><i class="fas fa-' + (c.is_published ? 'eye-slash' : 'eye') + '"></i> ' + (c.is_published ? 'Unpublish' : 'Publish') + '</button>' +
         '<button class="btn btn-sm btn-outline edit-campaign-btn" data-id="' + c.id + '"><i class="fas fa-edit"></i> Edit</button>' +
+        '<button class="btn btn-sm btn-outline upload-qr-btn" data-id="' + c.id + '" data-qr="' + esc(c.qr_code_url || '') + '" title="Upload QR Code for Donations"><i class="fas fa-qrcode"></i> ' + (c.qr_code_url ? 'Change QR' : 'Upload QR') + '</button>' +
         '<button class="btn btn-sm btn-danger delete-campaign-btn" data-id="' + c.id + '"><i class="fas fa-trash"></i></button>' +
         '</div></div>';
     }).join('');
@@ -658,7 +660,51 @@
       const toggleBtn = e.target.closest('.toggle-campaign-btn');
       const publishBtn = e.target.closest('.publish-campaign-btn');
       const editBtn = e.target.closest('.edit-campaign-btn');
+      const uploadQrBtn = e.target.closest('.upload-qr-btn');
       const deleteBtn = e.target.closest('.delete-campaign-btn');
+
+      if (uploadQrBtn) {
+        const id = uploadQrBtn.dataset.id;
+        const currentQr = uploadQrBtn.dataset.qr;
+        var qrPreview = currentQr
+          ? '<div style="margin-bottom:16px;text-align:center;"><img src="' + currentQr + '" alt="Current QR" style="width:120px;height:120px;object-fit:contain;border:1px solid #ddd;border-radius:6px;"><p style="font-size:12px;color:#999;margin-top:6px;">Current QR code</p></div>'
+          : '';
+        showModal('Upload QR Code for Donations',
+          qrPreview +
+          '<p style="font-size:13px;color:#666;margin-bottom:16px;">Upload a UPI QR code image. Visitors will scan this to donate to this campaign.</p>' +
+          '<div class="form-group"><label>Select QR Code Image</label><input type="file" id="qr-file-input" accept="image/jpeg,image/png" style="padding:8px 0;"></div>' +
+          '<p id="qr-upload-status" style="font-size:13px;color:#666;"></p>',
+          async function () {
+            var fileInput = document.getElementById('qr-file-input');
+            var file = fileInput && fileInput.files[0];
+            if (!file) { showToast('Select an image file first', 'error'); return; }
+            if (file.size > 5 * 1024 * 1024) { showToast('File must be under 5MB', 'error'); return; }
+            var statusEl = document.getElementById('qr-upload-status');
+            if (statusEl) statusEl.textContent = 'Uploading...';
+            try {
+              var base64 = await new Promise(function (resolve, reject) {
+                var reader = new FileReader();
+                reader.onload = function () { resolve(reader.result.split(',')[1]); };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+              });
+              var upRes = await fetch('/api/admin?action=upload', {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + getToken(), 'Content-Type': 'application/json' },
+                body: JSON.stringify({ filename: file.name, type: file.type, data: base64 })
+              });
+              var upData = await upRes.json();
+              if (!upRes.ok || !upData.url) throw new Error(upData.error || 'Upload failed');
+              await apiRequest('PATCH', 'fundraising', id, { qr_code_url: upData.url });
+              closeModal();
+              showToast('QR code uploaded!');
+              await loadFundraising();
+            } catch (err) {
+              if (statusEl) statusEl.textContent = '';
+              showToast('Upload failed: ' + (err.message || 'unknown error'), 'error');
+            }
+          });
+      }
 
       if (updateBtn) {
         const id = updateBtn.dataset.id;
@@ -731,6 +777,95 @@
         } catch { showToast('Failed to create campaign', 'error'); }
       });
     };
+  }
+
+  // ── REGISTRATIONS ─────────────────────────────────────────
+  var _registrationsCache = [];
+  var _registrationsEventFilter = 'all';
+
+  async function loadRegistrations() {
+    var container = document.getElementById('registrations-list');
+    var filterSel = document.getElementById('registrations-event-filter');
+    try {
+      _registrationsCache = await (async function () {
+        var url = '/api/admin?action=event_registrations';
+        var r = await fetch(url, { headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken() } });
+        return r.json();
+      })() || [];
+
+      // Populate event filter dropdown
+      if (filterSel) {
+        var seen = {};
+        var options = '<option value="all">All Events</option>';
+        _registrationsCache.forEach(function (r) {
+          if (r.event_title && !seen[r.event_title]) {
+            seen[r.event_title] = true;
+            options += '<option value="' + esc(r.event_title) + '">' + esc(r.event_title) + '</option>';
+          }
+        });
+        filterSel.innerHTML = options;
+        filterSel.value = _registrationsEventFilter;
+      }
+
+      renderRegistrationsTable(_registrationsCache, _registrationsEventFilter);
+    } catch {
+      container.innerHTML = '<p style="color:#d32f2f;text-align:center;padding:32px;">Failed to load registrations.</p>';
+    }
+  }
+
+  function renderRegistrationsTable(arr, eventFilter) {
+    var container = document.getElementById('registrations-list');
+    var filtered = eventFilter && eventFilter !== 'all'
+      ? arr.filter(function (r) { return r.event_title === eventFilter; })
+      : arr;
+
+    if (!filtered.length) {
+      container.innerHTML = '<div class="empty-state"><i class="fas fa-user-check"></i><p>No registrations yet' + (eventFilter !== 'all' ? ' for this event' : '') + '.</p></div>';
+      return;
+    }
+    container.innerHTML = '<table class="admin-table"><thead><tr>' +
+      '<th>Date</th><th>Event</th><th>Name</th><th>Email</th><th>Phone</th>' +
+      '</tr></thead><tbody>' +
+      filtered.map(function (r) {
+        var dateStr = r.created_at
+          ? new Date(r.created_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+          : '—';
+        return '<tr>' +
+          '<td style="white-space:nowrap;font-size:13px;">' + dateStr + '</td>' +
+          '<td><span class="badge badge-open" style="font-size:11px;">' + esc(r.event_title) + '</span></td>' +
+          '<td><strong>' + esc(r.name) + '</strong></td>' +
+          '<td><a href="mailto:' + esc(r.email) + '" style="color:var(--primary)">' + esc(r.email) + '</a></td>' +
+          '<td>' + esc(r.phone || '—') + '</td>' +
+          '</tr>';
+      }).join('') + '</tbody></table>' +
+      '<p style="margin-top:12px;font-size:13px;color:#999;text-align:right;">' + filtered.length + ' registration' + (filtered.length !== 1 ? 's' : '') + (eventFilter !== 'all' ? ' for this event' : ' total') + '</p>';
+  }
+
+  function downloadRegistrationsCSV() {
+    var filterSel = document.getElementById('registrations-event-filter');
+    var eventFilter = filterSel ? filterSel.value : 'all';
+    var filtered = eventFilter && eventFilter !== 'all'
+      ? _registrationsCache.filter(function (r) { return r.event_title === eventFilter; })
+      : _registrationsCache;
+    if (!filtered.length) { showToast('No registrations to download', 'error'); return; }
+    var headers = ['Date', 'Event', 'Name', 'Email', 'Phone'];
+    var rows = filtered.map(function (r) {
+      var dateStr = r.created_at
+        ? new Date(r.created_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+        : '';
+      return [dateStr, r.event_title, r.name, r.email, r.phone || '']
+        .map(function (v) { return '"' + String(v || '').replace(/"/g, '""') + '"'; })
+        .join(',');
+    });
+    var csv = '﻿' + headers.join(',') + '\n' + rows.join('\n');
+    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'jeevarasi-registrations-' + new Date().toISOString().slice(0, 10) + '.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Downloaded ' + filtered.length + ' registrations');
   }
 
   // ── CONTACTS ───────────────────────────────────────────────
@@ -883,6 +1018,13 @@
     dropZone.addEventListener('dragover', function (e) { e.preventDefault(); dropZone.classList.add('drag-over'); });
     dropZone.addEventListener('dragleave', function () { dropZone.classList.remove('drag-over'); });
     dropZone.addEventListener('drop', function (e) { e.preventDefault(); dropZone.classList.remove('drag-over'); uploadFiles(e.dataTransfer.files); });
+
+    // Registrations download + filter
+    document.getElementById('download-registrations-btn').addEventListener('click', downloadRegistrationsCSV);
+    document.getElementById('registrations-event-filter').addEventListener('change', function () {
+      _registrationsEventFilter = this.value;
+      renderRegistrationsTable(_registrationsCache, _registrationsEventFilter);
+    });
 
     // Contacts download
     document.getElementById('download-contacts-btn').addEventListener('click', downloadContactsCSV);

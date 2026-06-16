@@ -149,6 +149,24 @@ app.post('/api/admin', express.json({ limit: '55mb' }), async (req, res) => {
     } catch (e) { return res.status(500).json({ error: e.message }); }
   }
 
+  // Event registration — public, no auth required
+  if (action === 'event_register') {
+    const { event_id, event_title, name, email, phone } = req.body || {};
+    if (!name || !email || !event_title)
+      return res.status(400).json({ error: 'Missing required fields' });
+    const record = {
+      event_id: event_id || null,
+      event_title: event_title.trim(),
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      phone: phone ? phone.trim() : null
+    };
+    try {
+      await dbFetch('jeevarasi_event_registrations', 'POST', record, null);
+      return res.json({ success: true });
+    } catch (e) { return res.status(500).json({ error: e.message }); }
+  }
+
   if (!isAuthed(req)) return res.status(401).json({ error: 'Unauthorized' });
 
   // Upload to Supabase Storage
@@ -186,6 +204,22 @@ app.get('/api/admin', async (req, res) => {
     if (!isAuthed(req)) return res.status(401).json({ error: 'Unauthorized' });
     try {
       const r = await fetch(`${sbUrl()}/rest/v1/jeevarasi_newsletter?order=subscribed_at.desc`, {
+        headers: { apikey: sbAnon(), authorization: `Bearer ${sbService()}`, 'content-type': 'application/json' }
+      });
+      if (!r.ok) { const t = await r.text(); throw new Error(t); }
+      return res.json(await r.json() || []);
+    } catch (e) { return res.status(500).json({ error: e.message }); }
+  }
+
+  // event_registrations — requires auth, uses service role
+  if (action === 'event_registrations') {
+    if (!isAuthed(req)) return res.status(401).json({ error: 'Unauthorized' });
+    const eventId = req.query.event_id;
+    const qs = eventId
+      ? `event_id=eq.${encodeURIComponent(eventId)}&order=created_at.desc`
+      : `order=created_at.desc`;
+    try {
+      const r = await fetch(`${sbUrl()}/rest/v1/jeevarasi_event_registrations?${qs}`, {
         headers: { apikey: sbAnon(), authorization: `Bearer ${sbService()}`, 'content-type': 'application/json' }
       });
       if (!r.ok) { const t = await r.text(); throw new Error(t); }

@@ -308,6 +308,23 @@ async function handleContact(req, res) {
   } catch (e) { return send(res, 500, { error: e.message }); }
 }
 
+async function handleEventRegister(req, res) {
+  if (req.method !== 'POST') return send(res, 405, { error: 'Method not allowed' });
+  try {
+    const { event_id, event_title, name, email, phone } = await readJson(req);
+    if (!name || !email || !event_title) return send(res, 400, { error: 'Missing required fields' });
+    const record = {
+      event_id: event_id || null,
+      event_title: event_title.trim(),
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      phone: phone ? phone.trim() : null
+    };
+    await dbFetch('jeevarasi_event_registrations', 'POST', record, null);
+    return send(res, 200, { success: true });
+  } catch (e) { return send(res, 500, { error: e.message }); }
+}
+
 // ── MAIN HANDLER ──────────────────────────────────────────
 const DB_ACTIONS = new Set(Object.keys(DB_TABLES));
 
@@ -333,6 +350,23 @@ export default async function handler(req, res) {
     } catch (e) { return send(res, 500, { error: e.message }); }
   }
 
+  // event_registrations GET — requires auth and uses service role
+  if (action === 'event_registrations' && req.method === 'GET') {
+    if (!verifyAuth(req)) return send(res, 401, { error: 'Unauthorized' });
+    try {
+      const u = new URL(req.url, 'http://localhost');
+      const eventId = u.searchParams.get('event_id');
+      const qs = eventId
+        ? `event_id=eq.${encodeURIComponent(eventId)}&order=created_at.desc`
+        : `order=created_at.desc`;
+      const r = await fetch(`${sbUrl()}/rest/v1/jeevarasi_event_registrations?${qs}`, {
+        headers: { apikey: sbAnon(), authorization: `Bearer ${sbService()}`, 'content-type': 'application/json' }
+      });
+      if (!r.ok) { const t = await r.text().catch(() => ''); throw new Error(`DB (${r.status}): ${t}`); }
+      return send(res, 200, await r.json() || []);
+    } catch (e) { return send(res, 500, { error: e.message }); }
+  }
+
   if (DB_ACTIONS.has(action)) {
     if (req.method === 'GET') return handleDbGet(action, req, res);
     if (req.method === 'POST') return handleDbCreate(action, req, res);
@@ -348,6 +382,7 @@ export default async function handler(req, res) {
     case 'gallery': return handleGallery(res);
     case 'contact': return handleContact(req, res);
     case 'newsletter': return handleNewsletter(req, res);
+    case 'event_register': return handleEventRegister(req, res);
     default: return send(res, 400, { error: `Unknown action: ${action}` });
   }
 }

@@ -64,6 +64,9 @@
       <button class="admin-tab" data-tab="fundraising">
         <i class="fas fa-hand-holding-usd"></i> Fundraising
       </button>
+      <button class="admin-tab" data-tab="registrations">
+        <i class="fas fa-user-check"></i> Registrations
+      </button>
       <button class="admin-tab" data-tab="contacts">
         <i class="fas fa-envelope-open-text"></i> Contacts
       </button>
@@ -174,6 +177,27 @@
           </div>
         </div>
       </div><!-- /tab-fundraising -->
+
+      <!-- TAB: REGISTRATIONS -->
+      <div id="tab-registrations" class="tab-panel">
+        <div class="admin-section">
+          <div class="section-actions">
+            <h3><i class="fas fa-user-check"></i> Event Registrations</h3>
+            <div class="section-actions-right">
+              <select id="registrations-event-filter" class="admin-select">
+                <option value="all">All Events</option>
+              </select>
+              <button id="download-registrations-btn" class="btn btn-outline">
+                <i class="fas fa-file-excel"></i> Download Excel
+              </button>
+            </div>
+          </div>
+          <p class="section-desc">People who registered for events via the website. Filter by event using the dropdown.</p>
+          <div id="registrations-list" class="admin-table-wrap">
+            <p style="color: #999; text-align: center; padding: 32px;">Loading...</p>
+          </div>
+        </div>
+      </div><!-- /tab-registrations -->
 
       <!-- TAB: CONTACTS -->
       <div id="tab-contacts" class="tab-panel">
