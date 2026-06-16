@@ -305,7 +305,7 @@
 
 
     /* ================================================
-       CONTACT FORM (basic validation)
+       CONTACT FORM
        ================================================ */
     const contactForm = document.getElementById('contact-form');
     if (contactForm) {
@@ -316,17 +316,44 @@
         btn.innerHTML = '<span class="spinner"></span> Sending...';
         btn.disabled = true;
 
-        // Simulate send (replace with real API call)
-        setTimeout(function () {
-          btn.innerHTML = '✓ Message Sent!';
-          btn.style.background = 'var(--primary)';
-          contactForm.reset();
+        const data = {
+          name:    contactForm.querySelector('[name="name"]').value,
+          email:   contactForm.querySelector('[name="email"]').value,
+          phone:   contactForm.querySelector('[name="phone"]').value,
+          subject: contactForm.querySelector('[name="subject"]').value,
+          message: contactForm.querySelector('[name="message"]').value
+        };
+
+        fetch('/api/admin?action=contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+          if (res.success) {
+            btn.innerHTML = '✓ Message Sent!';
+            btn.style.background = 'var(--primary)';
+            contactForm.reset();
+          } else {
+            btn.innerHTML = 'Failed — try again';
+            btn.style.background = '#c0392b';
+          }
           setTimeout(function () {
             btn.innerHTML = original;
             btn.style.background = '';
             btn.disabled = false;
           }, 3500);
-        }, 1500);
+        })
+        .catch(function () {
+          btn.innerHTML = 'Error — try again';
+          btn.style.background = '#c0392b';
+          setTimeout(function () {
+            btn.innerHTML = original;
+            btn.style.background = '';
+            btn.disabled = false;
+          }, 3500);
+        });
       });
     }
 
@@ -334,20 +361,42 @@
     /* ================================================
        NEWSLETTER FORM
        ================================================ */
-    const newsletterForm = document.querySelector('.newsletter-form');
-    if (newsletterForm) {
-      newsletterForm.addEventListener('submit', function (e) {
+    document.querySelectorAll('.newsletter-form').forEach(function (form) {
+      form.addEventListener('submit', function (e) {
         e.preventDefault();
-        const btn = newsletterForm.querySelector('button');
-        btn.innerHTML = '✓ Subscribed!';
-        btn.style.background = 'var(--primary-dark)';
-        setTimeout(function () {
-          btn.innerHTML = 'Subscribe';
-          btn.style.background = '';
-          newsletterForm.reset();
-        }, 2500);
+        var btn = form.querySelector('button');
+        var input = form.querySelector('input[type="email"]');
+        var original = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '...';
+
+        fetch('/api/admin?action=newsletter', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: input.value })
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+          btn.innerHTML = res.success ? '✓ Subscribed!' : 'Error — try again';
+          btn.style.background = res.success ? 'var(--primary-dark)' : '#c0392b';
+          if (res.success) form.reset();
+          setTimeout(function () {
+            btn.innerHTML = original;
+            btn.style.background = '';
+            btn.disabled = false;
+          }, 2500);
+        })
+        .catch(function () {
+          btn.innerHTML = 'Error — try again';
+          btn.style.background = '#c0392b';
+          setTimeout(function () {
+            btn.innerHTML = original;
+            btn.style.background = '';
+            btn.disabled = false;
+          }, 2500);
+        });
       });
-    }
+    });
 
   }); // end ready
 

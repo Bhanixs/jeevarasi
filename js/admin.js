@@ -120,7 +120,9 @@
         stats: loadStats,
         events: loadEvents,
         projects: loadProjects,
-        fundraising: loadFundraising
+        fundraising: loadFundraising,
+        contacts: loadContacts,
+        newsletter: loadNewsletter
       };
       if (loaders[name]) loaders[name]();
     }
@@ -731,6 +733,122 @@
     };
   }
 
+  // ── CONTACTS ───────────────────────────────────────────────
+  var _contactsCache = [];
+
+  async function loadContacts() {
+    var container = document.getElementById('contacts-list');
+    try {
+      _contactsCache = await apiRequest('GET', 'contacts') || [];
+      renderContactsTable(_contactsCache);
+    } catch {
+      container.innerHTML = '<p style="color:#d32f2f;text-align:center;padding:32px;">Failed to load contacts.</p>';
+    }
+  }
+
+  function renderContactsTable(arr) {
+    var container = document.getElementById('contacts-list');
+    if (!arr.length) {
+      container.innerHTML = '<div class="empty-state"><i class="fas fa-envelope-open-text"></i><p>No contact form submissions yet.</p></div>';
+      return;
+    }
+    container.innerHTML = '<table class="admin-table"><thead><tr>' +
+      '<th>Date</th><th>Name</th><th>Email</th><th>Phone</th><th>Subject</th><th>Message</th>' +
+      '</tr></thead><tbody>' +
+      arr.map(function (c) {
+        var dateStr = c.created_at
+          ? new Date(c.created_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+          : '—';
+        return '<tr>' +
+          '<td style="white-space:nowrap;font-size:13px;">' + dateStr + '</td>' +
+          '<td><strong>' + esc(c.name) + '</strong></td>' +
+          '<td><a href="mailto:' + esc(c.email) + '" style="color:var(--primary)">' + esc(c.email) + '</a></td>' +
+          '<td>' + esc(c.phone || '—') + '</td>' +
+          '<td><span class="badge badge-open" style="font-size:11px;">' + esc(c.subject) + '</span></td>' +
+          '<td style="max-width:300px;font-size:13px;color:#555;">' + esc(c.message).replace(/\n/g, ' ') + '</td>' +
+          '</tr>';
+      }).join('') + '</tbody></table>';
+  }
+
+  function downloadContactsCSV() {
+    if (!_contactsCache.length) { showToast('No contacts to download', 'error'); return; }
+    var headers = ['Date', 'Name', 'Email', 'Phone', 'Subject', 'Message'];
+    var rows = _contactsCache.map(function (c) {
+      var dateStr = c.created_at
+        ? new Date(c.created_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+        : '';
+      return [dateStr, c.name, c.email, c.phone || '', c.subject, c.message]
+        .map(function (v) { return '"' + String(v || '').replace(/"/g, '""') + '"'; })
+        .join(',');
+    });
+    var csv = '﻿' + headers.join(',') + '\n' + rows.join('\n');
+    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'jeevarasi-contacts-' + new Date().toISOString().slice(0, 10) + '.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Downloaded ' + _contactsCache.length + ' contacts');
+  }
+
+  // ── NEWSLETTER ─────────────────────────────────────────────
+  var _newsletterCache = [];
+
+  async function loadNewsletter() {
+    var container = document.getElementById('newsletter-list');
+    try {
+      _newsletterCache = await apiRequest('GET', 'newsletter') || [];
+      renderNewsletterTable(_newsletterCache);
+    } catch {
+      container.innerHTML = '<p style="color:#d32f2f;text-align:center;padding:32px;">Failed to load subscribers.</p>';
+    }
+  }
+
+  function renderNewsletterTable(arr) {
+    var container = document.getElementById('newsletter-list');
+    if (!arr.length) {
+      container.innerHTML = '<div class="empty-state"><i class="fas fa-paper-plane"></i><p>No subscribers yet.</p></div>';
+      return;
+    }
+    container.innerHTML = '<table class="admin-table"><thead><tr>' +
+      '<th>#</th><th>Email</th><th>Subscribed On</th>' +
+      '</tr></thead><tbody>' +
+      arr.map(function (s, i) {
+        var dateStr = s.subscribed_at
+          ? new Date(s.subscribed_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+          : '—';
+        return '<tr>' +
+          '<td style="color:#999;font-size:13px;">' + (i + 1) + '</td>' +
+          '<td><a href="mailto:' + esc(s.email) + '" style="color:var(--primary)">' + esc(s.email) + '</a></td>' +
+          '<td style="font-size:13px;white-space:nowrap;">' + dateStr + '</td>' +
+          '</tr>';
+      }).join('') + '</tbody></table>' +
+      '<p style="margin-top:12px;font-size:13px;color:#999;text-align:right;">' + arr.length + ' subscriber' + (arr.length !== 1 ? 's' : '') + ' total</p>';
+  }
+
+  function downloadNewsletterCSV() {
+    if (!_newsletterCache.length) { showToast('No subscribers to download', 'error'); return; }
+    var headers = ['#', 'Email', 'Subscribed On'];
+    var rows = _newsletterCache.map(function (s, i) {
+      var dateStr = s.subscribed_at
+        ? new Date(s.subscribed_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+        : '';
+      return [i + 1, s.email, dateStr]
+        .map(function (v) { return '"' + String(v || '').replace(/"/g, '""') + '"'; })
+        .join(',');
+    });
+    var csv = '﻿' + headers.join(',') + '\n' + rows.join('\n');
+    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'jeevarasi-newsletter-' + new Date().toISOString().slice(0, 10) + '.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Downloaded ' + _newsletterCache.length + ' subscribers');
+  }
+
   // ── UTILITY ────────────────────────────────────────────────
   function esc(str) {
     if (!str) return '';
@@ -765,6 +883,12 @@
     dropZone.addEventListener('dragover', function (e) { e.preventDefault(); dropZone.classList.add('drag-over'); });
     dropZone.addEventListener('dragleave', function () { dropZone.classList.remove('drag-over'); });
     dropZone.addEventListener('drop', function (e) { e.preventDefault(); dropZone.classList.remove('drag-over'); uploadFiles(e.dataTransfer.files); });
+
+    // Contacts download
+    document.getElementById('download-contacts-btn').addEventListener('click', downloadContactsCSV);
+
+    // Newsletter download
+    document.getElementById('download-newsletter-btn').addEventListener('click', downloadNewsletterCSV);
 
     // Modal close
     document.getElementById('modal-close-btn').addEventListener('click', closeModal);

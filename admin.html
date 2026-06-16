@@ -64,6 +64,12 @@
       <button class="admin-tab" data-tab="fundraising">
         <i class="fas fa-hand-holding-usd"></i> Fundraising
       </button>
+      <button class="admin-tab" data-tab="contacts">
+        <i class="fas fa-envelope-open-text"></i> Contacts
+      </button>
+      <button class="admin-tab" data-tab="newsletter">
+        <i class="fas fa-paper-plane"></i> Newsletter
+      </button>
     </div>
 
     <!-- Content -->
@@ -168,6 +174,38 @@
           </div>
         </div>
       </div><!-- /tab-fundraising -->
+
+      <!-- TAB: CONTACTS -->
+      <div id="tab-contacts" class="tab-panel">
+        <div class="admin-section">
+          <div class="section-actions">
+            <h3><i class="fas fa-envelope-open-text"></i> Contact Form Submissions</h3>
+            <button id="download-contacts-btn" class="btn btn-outline">
+              <i class="fas fa-file-excel"></i> Download Excel
+            </button>
+          </div>
+          <p class="section-desc">All messages submitted via the contact form on the website. Newest first.</p>
+          <div id="contacts-list" class="admin-table-wrap">
+            <p style="color: #999; text-align: center; padding: 32px;">Loading...</p>
+          </div>
+        </div>
+      </div><!-- /tab-contacts -->
+
+      <!-- TAB: NEWSLETTER -->
+      <div id="tab-newsletter" class="tab-panel">
+        <div class="admin-section">
+          <div class="section-actions">
+            <h3><i class="fas fa-paper-plane"></i> Newsletter Subscribers</h3>
+            <button id="download-newsletter-btn" class="btn btn-outline">
+              <i class="fas fa-file-excel"></i> Download Excel
+            </button>
+          </div>
+          <p class="section-desc">All email addresses subscribed via the newsletter form on the website. Duplicates are automatically ignored.</p>
+          <div id="newsletter-list" class="admin-table-wrap">
+            <p style="color: #999; text-align: center; padding: 32px;">Loading...</p>
+          </div>
+        </div>
+      </div><!-- /tab-newsletter -->
 
     </div><!-- /admin-container -->
 
