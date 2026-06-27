@@ -15,14 +15,16 @@ const DB_TABLES = {
   events:      'jeevarasi_events',
   projects:    'jeevarasi_projects',
   fundraising: 'jeevarasi_fundraising',
-  contacts:    'jeevarasi_contacts'
+  contacts:    'jeevarasi_contacts',
+  reviews:     'jeevarasi_reviews'
 };
 const DB_ORDER = {
   stats:       'sort_order.asc,created_at.asc',
   events:      'event_date.asc',
   projects:    'sort_order.asc,created_at.desc',
   fundraising: 'created_at.desc',
-  contacts:    'created_at.desc'
+  contacts:    'created_at.desc',
+  reviews:     'created_at.desc'
 };
 
 // In-memory session tokens (cleared on server restart)
@@ -167,6 +169,20 @@ app.post('/api/admin', express.json({ limit: '55mb' }), async (req, res) => {
     } catch (e) { return res.status(500).json({ error: e.message }); }
   }
 
+  // Review submission — public, no auth required
+  if (action === 'review') {
+    const { name, rating, message } = req.body || {};
+    if (!name || !rating || !message)
+      return res.status(400).json({ error: 'Missing required fields' });
+    const r = parseInt(rating, 10);
+    if (r < 1 || r > 5) return res.status(400).json({ error: 'Rating must be between 1 and 5' });
+    const record = { name: name.trim(), rating: r, message: message.trim(), approved: false };
+    try {
+      await dbFetch('jeevarasi_reviews', 'POST', record, null);
+      return res.json({ success: true });
+    } catch (e) { return res.status(500).json({ error: e.message }); }
+  }
+
   if (!isAuthed(req)) return res.status(401).json({ error: 'Unauthorized' });
 
   // Upload to Supabase Storage
@@ -263,6 +279,15 @@ app.get('/api/admin', async (req, res) => {
           };
         }).reverse();
       return res.json(items);
+    } catch (e) { return res.status(500).json({ error: e.message }); }
+  }
+
+  // Reviews — public: approved only; authed admin: all
+  if (action === 'reviews') {
+    const authed = isAuthed(req);
+    const qs = authed ? 'order=created_at.desc' : 'approved=eq.true&order=created_at.desc';
+    try {
+      return res.json(await dbFetch('jeevarasi_reviews', 'GET', null, qs) || []);
     } catch (e) { return res.status(500).json({ error: e.message }); }
   }
 

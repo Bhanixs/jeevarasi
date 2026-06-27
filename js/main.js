@@ -398,6 +398,128 @@
       });
     });
 
+
+
+    /* ================================================
+       REVIEWS — star picker, submit, load
+       ================================================ */
+    var _reviewRating = 0;
+    var _reviewStars = null;
+
+    var starPicker = document.getElementById('star-picker');
+    if (starPicker) {
+      _reviewStars = starPicker.querySelectorAll('[data-rating]');
+
+      _reviewStars.forEach(function (star) {
+        star.addEventListener('mouseover', function () {
+          var hover = parseInt(star.dataset.rating, 10);
+          _reviewStars.forEach(function (s) {
+            s.style.color = parseInt(s.dataset.rating, 10) <= hover ? '#f39c12' : '#ccc';
+          });
+        });
+        star.addEventListener('mouseout', function () {
+          _reviewStars.forEach(function (s) {
+            s.style.color = parseInt(s.dataset.rating, 10) <= _reviewRating ? '#f39c12' : '#ccc';
+          });
+        });
+        star.addEventListener('click', function () {
+          _reviewRating = parseInt(star.dataset.rating, 10);
+          document.getElementById('review-rating').value = _reviewRating;
+          _reviewStars.forEach(function (s) {
+            s.style.color = parseInt(s.dataset.rating, 10) <= _reviewRating ? '#f39c12' : '#ccc';
+          });
+        });
+      });
+      _reviewStars.forEach(function (s) { s.style.color = '#ccc'; });
+    }
+
+    var reviewForm = document.getElementById('review-form');
+    if (reviewForm) {
+      reviewForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var name = document.getElementById('review-name').value.trim();
+        var rating = document.getElementById('review-rating').value;
+        var message = document.getElementById('review-message').value.trim();
+        var statusEl = document.getElementById('review-status');
+        var btn = reviewForm.querySelector('button[type="submit"]');
+        var original = btn.innerHTML;
+
+        if (!name || !rating || !message) {
+          statusEl.style.color = '#c0392b';
+          statusEl.textContent = 'Please fill in all fields and select a rating.';
+          statusEl.style.display = 'block';
+          return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Submitting...';
+        statusEl.style.display = 'none';
+
+        fetch('/api/admin?action=review', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: name, rating: parseInt(rating, 10), message: message })
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+          if (res.success) {
+            statusEl.style.color = 'var(--primary)';
+            statusEl.textContent = 'Thank you! Your review has been submitted and will appear after approval.';
+            statusEl.style.display = 'block';
+            reviewForm.reset();
+            _reviewRating = 0;
+            if (_reviewStars) _reviewStars.forEach(function (s) { s.style.color = '#ccc'; });
+            btn.innerHTML = '✓ Submitted!';
+            setTimeout(function () { btn.innerHTML = original; btn.disabled = false; }, 3500);
+          } else {
+            statusEl.style.color = '#c0392b';
+            statusEl.textContent = res.error || 'Something went wrong. Please try again.';
+            statusEl.style.display = 'block';
+            btn.innerHTML = original;
+            btn.disabled = false;
+          }
+        })
+        .catch(function () {
+          statusEl.style.color = '#c0392b';
+          statusEl.textContent = 'Network error. Please try again.';
+          statusEl.style.display = 'block';
+          btn.innerHTML = original;
+          btn.disabled = false;
+        });
+      });
+    }
+
+    function escReview(str) {
+      return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function loadReviews() {
+      var grid = document.getElementById('reviews-grid');
+      if (!grid) return;
+      fetch('/api/admin?action=reviews')
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (!Array.isArray(data) || !data.length) {
+            grid.innerHTML = '<p class="reviews-empty">No reviews yet. Be the first to share your experience!</p>';
+            return;
+          }
+          grid.innerHTML = data.map(function (review) {
+            var stars = '';
+            for (var i = 1; i <= 5; i++) {
+              stars += '<i class="fas fa-star" style="color:' + (i <= review.rating ? '#f39c12' : '#ddd') + ';font-size:15px;"></i>';
+            }
+            return '<div class="review-card">' +
+              '<div class="review-stars">' + stars + '</div>' +
+              '<p class="review-message">“' + escReview(review.message) + '”</p>' +
+              '<p class="review-author">— ' + escReview(review.name) + '</p>' +
+              '</div>';
+          }).join('');
+        })
+        .catch(function () {});
+    }
+
+    loadReviews();
+
   }); // end ready
 
 })();

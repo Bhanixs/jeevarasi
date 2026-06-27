@@ -123,6 +123,7 @@
         fundraising: loadFundraising,
         registrations: loadRegistrations,
         contacts: loadContacts,
+        reviews: loadReviews,
         newsletter: loadNewsletter
       };
       if (loaders[name]) loaders[name]();
@@ -925,6 +926,79 @@
     a.click();
     URL.revokeObjectURL(url);
     showToast('Downloaded ' + _contactsCache.length + ' contacts');
+  }
+
+  // ── REVIEWS ────────────────────────────────────────────────
+  var _reviewsCache = [];
+
+  async function loadReviews() {
+    var container = document.getElementById('reviews-list');
+    try {
+      _reviewsCache = await apiRequest('GET', 'reviews') || [];
+      renderReviewsTable(_reviewsCache);
+    } catch {
+      container.innerHTML = '<p style="color:#d32f2f;text-align:center;padding:32px;">Failed to load reviews.</p>';
+    }
+  }
+
+  function renderReviewsTable(arr) {
+    var container = document.getElementById('reviews-list');
+    if (!arr.length) {
+      container.innerHTML = '<div class="empty-state"><i class="fas fa-star"></i><p>No reviews yet.</p></div>';
+      return;
+    }
+    container.innerHTML = '<table class="admin-table"><thead><tr>' +
+      '<th>Date</th><th>Name</th><th>Rating</th><th>Review</th><th>Status</th><th>Actions</th>' +
+      '</tr></thead><tbody>' +
+      arr.map(function (r) {
+        var dateStr = r.created_at
+          ? new Date(r.created_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+          : '—';
+        var stars = '';
+        for (var i = 1; i <= 5; i++) {
+          stars += '<i class="fas fa-star" style="color:' + (i <= r.rating ? '#f39c12' : '#ddd') + ';font-size:13px;"></i>';
+        }
+        var badge = r.approved
+          ? '<span class="badge badge-live" style="font-size:11px;">Approved</span>'
+          : '<span class="badge badge-future" style="font-size:11px;background:rgba(255,193,7,0.15);color:#856404;">Pending</span>';
+        var approveBtn = r.approved
+          ? '<button class="btn btn-sm btn-outline unapprove-review-btn" data-id="' + r.id + '" title="Unapprove"><i class="fas fa-eye-slash"></i></button>'
+          : '<button class="btn btn-sm btn-success approve-review-btn" data-id="' + r.id + '" title="Approve"><i class="fas fa-check"></i></button>';
+        return '<tr style="' + (r.approved ? '' : 'background:#fffbea;') + '">' +
+          '<td style="white-space:nowrap;font-size:13px;">' + dateStr + '</td>' +
+          '<td><strong>' + esc(r.name) + '</strong></td>' +
+          '<td style="white-space:nowrap;">' + stars + '</td>' +
+          '<td style="max-width:320px;font-size:13px;color:#555;">' + esc(r.message) + '</td>' +
+          '<td>' + badge + '</td>' +
+          '<td style="white-space:nowrap;">' + approveBtn +
+          ' <button class="btn btn-sm btn-danger delete-review-btn" data-id="' + r.id + '" title="Delete"><i class="fas fa-trash"></i></button></td>' +
+          '</tr>';
+      }).join('') + '</tbody></table>';
+
+    var listEl = document.getElementById('reviews-list');
+
+    listEl.addEventListener('click', function (e) {
+      var approveBtn = e.target.closest('.approve-review-btn');
+      if (approveBtn) {
+        apiRequest('PATCH', 'reviews', approveBtn.dataset.id, { approved: true })
+          .then(function () { showToast('Review approved'); loadReviews(); })
+          .catch(function () { showToast('Failed to approve', 'error'); });
+        return;
+      }
+      var unapproveBtn = e.target.closest('.unapprove-review-btn');
+      if (unapproveBtn) {
+        apiRequest('PATCH', 'reviews', unapproveBtn.dataset.id, { approved: false })
+          .then(function () { showToast('Review unapproved'); loadReviews(); })
+          .catch(function () { showToast('Failed to unapprove', 'error'); });
+        return;
+      }
+      var deleteBtn = e.target.closest('.delete-review-btn');
+      if (deleteBtn) {
+        apiRequest('DELETE', 'reviews', deleteBtn.dataset.id)
+          .then(function () { showToast('Review deleted'); loadReviews(); })
+          .catch(function () { showToast('Failed to delete', 'error'); });
+      }
+    });
   }
 
   // ── NEWSLETTER ─────────────────────────────────────────────

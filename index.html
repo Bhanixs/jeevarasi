@@ -17,6 +17,20 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/animations.css">
   <link rel="stylesheet" href="css/responsive.css">
+  <style>
+    .reviews-section { padding: 80px 0; background: #f8fdf3; }
+    .reviews-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; margin-bottom: 50px; min-height: 40px; }
+    .review-card { background: #fff; border-radius: 8px; padding: 28px; box-shadow: var(--shadow); border-top: 3px solid var(--primary); display: flex; flex-direction: column; gap: 12px; }
+    .review-stars { display: flex; gap: 4px; }
+    .review-message { font-size: 15px; color: var(--text); line-height: 1.65; flex: 1; font-style: italic; margin: 0; }
+    .review-author { font-size: 13px; font-weight: 700; color: var(--primary-dark); margin: 0; font-family: var(--font-nav); }
+    .reviews-empty { text-align: center; color: var(--text-light); padding: 20px 0; }
+    .review-form-card { background: #fff; border-radius: 8px; padding: 36px 40px; box-shadow: var(--shadow); max-width: 760px; margin: 0 auto; }
+    .review-form-row { display: flex; gap: 24px; }
+    .review-form-card input, .review-form-card textarea { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 4px; font-size: 14px; font-family: inherit; outline: none; box-sizing: border-box; transition: border-color 0.2s; }
+    .review-form-card input:focus, .review-form-card textarea:focus { border-color: var(--primary); }
+    @media (max-width: 600px) { .review-form-row { flex-direction: column; } .review-form-card { padding: 24px 20px; } }
+  </style>
 </head>
 <body>
 
@@ -569,6 +583,54 @@
         <a href="#newsletter" class="btn btn-primary btn-arrow">Subscribe to Newsletter</a>
         <a href="contact.html#volunteer" class="btn btn-outline btn-arrow">Register as Volunteer</a>
         <a href="index.html#gallery" class="btn btn-outline">View Gallery</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================
+       REVIEWS
+       ======================================== -->
+  <section id="reviews" class="reviews-section">
+    <div class="container">
+      <div class="section-header centered">
+        <span class="section-subtitle">Community Voices</span>
+        <h2 class="section-title reveal">What People <span>Say.</span></h2>
+        <p class="reveal reveal-delay-1" style="max-width:560px;margin:0 auto;color:var(--text-light);">Every visit, every workshop, every tree planted — hear it from the people who experienced it.</p>
+      </div>
+
+      <!-- Approved reviews rendered by loadReviews() in main.js -->
+      <div id="reviews-grid" class="reviews-grid reveal reveal-delay-2"></div>
+
+      <!-- Submission form -->
+      <div class="review-form-card reveal">
+        <h3 style="margin:0 0 20px;font-size:20px;color:var(--heading);"><i class="fas fa-star" style="color:#f39c12;margin-right:8px;"></i>Share Your Experience</h3>
+        <form id="review-form" novalidate>
+          <div class="review-form-row">
+            <div style="flex:1;">
+              <label for="review-name" style="display:block;font-weight:600;color:var(--heading);margin-bottom:6px;font-size:14px;">Your Name <span style="color:#c0392b">*</span></label>
+              <input type="text" id="review-name" placeholder="e.g. Priya Sharma" required>
+            </div>
+            <div style="flex:1;">
+              <label style="display:block;font-weight:600;color:var(--heading);margin-bottom:6px;font-size:14px;">Rating <span style="color:#c0392b">*</span></label>
+              <div id="star-picker" style="display:flex;gap:8px;align-items:center;height:42px;">
+                <i class="fas fa-star" data-rating="1" style="font-size:26px;cursor:pointer;color:#ccc;transition:color 0.15s;"></i>
+                <i class="fas fa-star" data-rating="2" style="font-size:26px;cursor:pointer;color:#ccc;transition:color 0.15s;"></i>
+                <i class="fas fa-star" data-rating="3" style="font-size:26px;cursor:pointer;color:#ccc;transition:color 0.15s;"></i>
+                <i class="fas fa-star" data-rating="4" style="font-size:26px;cursor:pointer;color:#ccc;transition:color 0.15s;"></i>
+                <i class="fas fa-star" data-rating="5" style="font-size:26px;cursor:pointer;color:#ccc;transition:color 0.15s;"></i>
+              </div>
+              <input type="hidden" id="review-rating" value="">
+            </div>
+          </div>
+          <div style="margin-top:14px;">
+            <label for="review-message" style="display:block;font-weight:600;color:var(--heading);margin-bottom:6px;font-size:14px;">Your Review <span style="color:#c0392b">*</span></label>
+            <textarea id="review-message" rows="3" placeholder="Tell us about your experience at Jeevarasi..." required></textarea>
+          </div>
+          <div style="margin-top:18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+            <button type="submit" class="btn btn-primary">Submit Review</button>
+            <p id="review-status" style="margin:0;font-size:14px;display:none;"></p>
+          </div>
+        </form>
       </div>
     </div>
   </section>

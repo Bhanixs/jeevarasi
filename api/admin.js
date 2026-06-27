@@ -12,7 +12,8 @@ const DB_TABLES = {
   events: 'jeevarasi_events',
   projects: 'jeevarasi_projects',
   fundraising: 'jeevarasi_fundraising',
-  contacts: 'jeevarasi_contacts'
+  contacts: 'jeevarasi_contacts',
+  reviews: 'jeevarasi_reviews'
 };
 
 const DB_ORDER = {
@@ -20,7 +21,8 @@ const DB_ORDER = {
   events: 'event_date.asc',
   projects: 'sort_order.asc,created_at.desc',
   fundraising: 'created_at.desc',
-  contacts: 'created_at.desc'
+  contacts: 'created_at.desc',
+  reviews: 'created_at.desc'
 };
 
 // ── SUPABASE HELPERS ──────────────────────────────────────
@@ -308,6 +310,19 @@ async function handleContact(req, res) {
   } catch (e) { return send(res, 500, { error: e.message }); }
 }
 
+async function handleReviewSubmit(req, res) {
+  if (req.method !== 'POST') return send(res, 405, { error: 'Method not allowed' });
+  try {
+    const { name, rating, message } = await readJson(req);
+    if (!name || !rating || !message) return send(res, 400, { error: 'Missing required fields' });
+    const r = parseInt(rating, 10);
+    if (r < 1 || r > 5) return send(res, 400, { error: 'Rating must be between 1 and 5' });
+    const record = { name: name.trim(), rating: r, message: message.trim(), approved: false };
+    await dbFetch('jeevarasi_reviews', 'POST', record, null);
+    return send(res, 200, { success: true });
+  } catch (e) { return send(res, 500, { error: e.message }); }
+}
+
 async function handleEventRegister(req, res) {
   if (req.method !== 'POST') return send(res, 405, { error: 'Method not allowed' });
   try {
@@ -367,6 +382,15 @@ export default async function handler(req, res) {
     } catch (e) { return send(res, 500, { error: e.message }); }
   }
 
+  // Reviews GET — public: approved only; authed admin: all
+  if (action === 'reviews' && req.method === 'GET') {
+    const authed = verifyAuth(req);
+    const qs = authed ? 'order=created_at.desc' : 'approved=eq.true&order=created_at.desc';
+    try {
+      return send(res, 200, await dbFetch('jeevarasi_reviews', 'GET', null, qs) || []);
+    } catch (e) { return send(res, 500, { error: e.message }); }
+  }
+
   if (DB_ACTIONS.has(action)) {
     if (req.method === 'GET') return handleDbGet(action, req, res);
     if (req.method === 'POST') return handleDbCreate(action, req, res);
@@ -383,6 +407,7 @@ export default async function handler(req, res) {
     case 'contact': return handleContact(req, res);
     case 'newsletter': return handleNewsletter(req, res);
     case 'event_register': return handleEventRegister(req, res);
+    case 'review': return handleReviewSubmit(req, res);
     default: return send(res, 400, { error: `Unknown action: ${action}` });
   }
 }

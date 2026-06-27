@@ -70,6 +70,9 @@
       <button class="admin-tab" data-tab="contacts">
         <i class="fas fa-envelope-open-text"></i> Contacts
       </button>
+      <button class="admin-tab" data-tab="reviews">
+        <i class="fas fa-star"></i> Reviews
+      </button>
       <button class="admin-tab" data-tab="newsletter">
         <i class="fas fa-paper-plane"></i> Newsletter
       </button>
@@ -214,6 +217,19 @@
           </div>
         </div>
       </div><!-- /tab-contacts -->
+
+      <!-- TAB: REVIEWS -->
+      <div id="tab-reviews" class="tab-panel">
+        <div class="admin-section">
+          <div class="section-actions">
+            <h3><i class="fas fa-star"></i> Customer Reviews</h3>
+          </div>
+          <p class="section-desc">Reviews submitted by visitors. Approve a review to make it visible on the homepage. Pending reviews are highlighted.</p>
+          <div id="reviews-list" class="admin-table-wrap">
+            <p style="color: #999; text-align: center; padding: 32px;">Loading...</p>
+          </div>
+        </div>
+      </div><!-- /tab-reviews -->
 
       <!-- TAB: NEWSLETTER -->
       <div id="tab-newsletter" class="tab-panel">
