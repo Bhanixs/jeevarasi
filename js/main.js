@@ -74,14 +74,44 @@
       });
     }
 
-    /* ---- Active nav link based on current page ---- */
-    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-    document.querySelectorAll('.main-nav a').forEach(function (link) {
-      const href = link.getAttribute('href');
-      if (href === currentPage || (currentPage === '' && href === 'index.html')) {
-        link.closest('li') && link.closest('li').classList.add('active');
+    /* ---- Active nav link: current page, with scroll-spy for in-page sections ---- */
+    (function () {
+      const navLinks = Array.from(document.querySelectorAll('.main-nav a'));
+      const currentPage = window.location.pathname.replace(/^\/|\.html$/g, '').split('/').pop() || 'index';
+
+      function setActive(link) {
+        navLinks.forEach(function (l) { l.closest('li') && l.closest('li').classList.remove('active'); });
+        if (link) link.closest('li') && link.closest('li').classList.add('active');
       }
-    });
+
+      const entries = navLinks.map(function (link) {
+        const raw = link.getAttribute('href') || '';
+        const [rawPath, hash] = raw.split('#');
+        const linkPage = rawPath.replace(/^\/|\.html$/g, '') || 'index';
+        return { link: link, page: linkPage, hash: hash ? '#' + hash : null };
+      }).filter(function (e) { return e.page === currentPage; });
+
+      const sectionEntries = entries.filter(function (e) { return e.hash && document.querySelector(e.hash); });
+      const pageEntry = entries.find(function (e) { return !e.hash; });
+
+      if (sectionEntries.length) {
+        function pickByScroll() {
+          const headerH = header ? header.offsetHeight : 0;
+          let active = pageEntry;
+          sectionEntries.forEach(function (e) {
+            const target = document.querySelector(e.hash);
+            if (target && target.getBoundingClientRect().top - headerH - 20 <= 0) {
+              active = e;
+            }
+          });
+          setActive(active ? active.link : null);
+        }
+        pickByScroll();
+        window.addEventListener('scroll', pickByScroll, { passive: true });
+      } else if (pageEntry) {
+        setActive(pageEntry.link);
+      }
+    })();
 
 
     /* ================================================
@@ -149,7 +179,12 @@
 
 
     /* ================================================
-       SMOOTH SCROLL (anchor links)
+       SMOOTH SCROLL (anchor links) — scrolls to in-page
+       sections without ever leaving a "#section" in the
+       address bar. Cross-page section links (e.g. a
+       "Projects" link on the About page shown from the
+       Blog page) hand the target off via sessionStorage
+       and navigate to the plain page URL.
        ================================================ */
     function scrollToElement(hash) {
       const target = document.querySelector(hash);
@@ -160,23 +195,45 @@
       }
     }
 
-    // Handle anchor clicks
-    document.querySelectorAll('a[href^="#"]').forEach(function (anchor) {
+    const currentPageForScroll = window.location.pathname.replace(/^\/|\.html$/g, '').split('/').pop() || 'index';
+
+    document.querySelectorAll('a[href*="#"]').forEach(function (anchor) {
+      const raw = anchor.getAttribute('href') || '';
+      const hashIdx = raw.indexOf('#');
+      const hash = raw.slice(hashIdx);
+      if (hash.length <= 1) return; // bare "#" placeholders — leave as-is
+      const pagePart = raw.slice(0, hashIdx);
+      const linkPage = pagePart.replace(/^\/|\.html$/g, '') || 'index';
+
       anchor.addEventListener('click', function (e) {
-        const hash = this.getAttribute('href');
-        const target = document.querySelector(hash);
-        if (target) {
+        if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+
+        if (linkPage === currentPageForScroll) {
+          if (document.querySelector(hash)) {
+            e.preventDefault();
+            scrollToElement(hash);
+          }
+        } else {
           e.preventDefault();
-          scrollToElement(hash);
+          sessionStorage.setItem('jeevarasiScrollTo', hash);
+          window.location.href = pagePart || '/';
         }
       });
     });
 
-    // Handle page load with hash (for navigation from other pages)
-    if (window.location.hash) {
-      setTimeout(function () {
-        scrollToElement(window.location.hash);
-      }, 100);
+    // Arrived from another page (via the handoff above), or from an old
+    // bookmarked "#section" link — scroll to the target, then strip the
+    // hash so it never shows in the address bar.
+    const pendingHash = sessionStorage.getItem('jeevarasiScrollTo');
+    if (pendingHash) {
+      sessionStorage.removeItem('jeevarasiScrollTo');
+      setTimeout(function () { scrollToElement(pendingHash); }, 100);
+    } else if (window.location.hash) {
+      const hash = window.location.hash;
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+      setTimeout(function () { scrollToElement(hash); }, 100);
     }
 
 

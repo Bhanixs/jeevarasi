@@ -107,8 +107,20 @@ async function notifyWhatsApp(data) {
   }).catch(() => {});
 }
 
+// ── CLEAN URLS ─────────────────────────────────────────────────
+// Redirect requests for the .html file to its extensionless URL
+// (e.g. /about.html -> /about, /index.html -> /), then let
+// express.static's `extensions` option resolve /about -> about.html.
+app.get(/\.html$/, (req, res, next) => {
+  if (req.path.endsWith('.html')) {
+    const clean = req.path === '/index.html' ? '/' : req.path.slice(0, -5);
+    return res.redirect(308, clean + req.url.slice(req.path.length));
+  }
+  next();
+});
+
 // ── STATIC FILES ──────────────────────────────────────────────
-app.use(express.static(__dirname));
+app.use(express.static(__dirname, { extensions: ['html'] }));
 
 // ── POST /api/admin ───────────────────────────────────────────
 app.post('/api/admin', express.json({ limit: '55mb' }), async (req, res) => {
@@ -356,7 +368,7 @@ app.delete('/api/admin', express.json(), async (req, res) => {
 // ── START ─────────────────────────────────────────────────────
 app.listen(PORT, () => {
   console.log(`\n  Server : http://localhost:${PORT}`);
-  console.log(`  Admin  : http://localhost:${PORT}/admin.html`);
+  console.log(`  Admin  : http://localhost:${PORT}/admin`);
   console.log(`  Login  : ${ADMIN_EMAIL} / ${ADMIN_PASSWORD}`);
   console.log(`  Supa   : ${sbUrl() || '⚠️  SUPABASE_URL not set'}\n`);
 });
