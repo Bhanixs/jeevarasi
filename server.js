@@ -16,7 +16,8 @@ const DB_TABLES = {
   projects:    'jeevarasi_projects',
   fundraising: 'jeevarasi_fundraising',
   contacts:    'jeevarasi_contacts',
-  reviews:     'jeevarasi_reviews'
+  reviews:     'jeevarasi_reviews',
+  blogs:       'jeevarasi_blogs'
 };
 const DB_ORDER = {
   stats:       'sort_order.asc,created_at.asc',
@@ -24,7 +25,8 @@ const DB_ORDER = {
   projects:    'sort_order.asc,created_at.desc',
   fundraising: 'created_at.desc',
   contacts:    'created_at.desc',
-  reviews:     'created_at.desc'
+  reviews:     'created_at.desc',
+  blogs:       'sort_order.asc,created_at.desc'
 };
 
 // In-memory session tokens (cleared on server restart)
@@ -200,10 +202,11 @@ app.post('/api/admin', express.json({ limit: '55mb' }), async (req, res) => {
   // Upload to Supabase Storage
   if (action === 'upload') {
     try {
-      const { filename, type, data } = req.body || {};
+      const { filename, type, data, folder } = req.body || {};
       if (!filename || !data) return res.status(400).json({ error: 'Missing file data' });
-      const buf  = Buffer.from(data, 'base64');
-      const fp   = `${STORE_PREFIX}${Date.now()}-${path.basename(filename)}`;
+      const buf    = Buffer.from(data, 'base64');
+      const prefix = folder ? `jeevarasi-${folder}/` : STORE_PREFIX;
+      const fp     = `${prefix}${Date.now()}-${path.basename(filename)}`;
       const r = await fetch(`${sbUrl()}/storage/v1/object/${BUCKET}/${encodePath(fp)}`, {
         method:  'POST',
         headers: { apikey: sbAnon(), authorization: `Bearer ${sbService()}`, 'content-type': type || 'application/octet-stream' },
@@ -300,6 +303,22 @@ app.get('/api/admin', async (req, res) => {
     const qs = authed ? 'order=created_at.desc' : 'approved=eq.true&order=created_at.desc';
     try {
       return res.json(await dbFetch('jeevarasi_reviews', 'GET', null, qs) || []);
+    } catch (e) { return res.status(500).json({ error: e.message }); }
+  }
+
+  // Blogs — by slug (single post); public: published only, authed admin: all
+  if (action === 'blogs') {
+    const slug = req.query.slug;
+    const authed = isAuthed(req);
+    let qs;
+    if (slug) {
+      qs = `slug=eq.${encodeURIComponent(slug)}`;
+      if (!authed) qs += '&is_published=eq.true';
+    } else {
+      qs = authed ? `order=${DB_ORDER.blogs}` : `is_published=eq.true&order=${DB_ORDER.blogs}`;
+    }
+    try {
+      return res.json(await dbFetch('jeevarasi_blogs', 'GET', null, qs) || []);
     } catch (e) { return res.status(500).json({ error: e.message }); }
   }
 

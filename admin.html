@@ -17,6 +17,7 @@
   <link rel="icon" type="image/png" sizes="512x512" href="images/favicon.png">
   <link rel="apple-touch-icon" href="images/favicon.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css">
   <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
@@ -74,6 +75,9 @@
       </button>
       <button class="admin-tab" data-tab="fundraising">
         <i class="fas fa-hand-holding-usd"></i> Fundraising
+      </button>
+      <button class="admin-tab" data-tab="blog">
+        <i class="fas fa-blog"></i> Blog
       </button>
       <button class="admin-tab" data-tab="registrations">
         <i class="fas fa-user-check"></i> Registrations
@@ -192,6 +196,22 @@
         </div>
       </div><!-- /tab-fundraising -->
 
+      <!-- TAB: BLOG -->
+      <div id="tab-blog" class="tab-panel">
+        <div class="admin-section">
+          <div class="section-actions">
+            <h3><i class="fas fa-blog"></i> Blog Posts</h3>
+            <button id="add-blog-btn" class="btn btn-primary">
+              <i class="fas fa-plus"></i> Add Post
+            </button>
+          </div>
+          <p class="section-desc">Write posts directly on the site with a rich text editor and inline images, or publish a post as an uploaded PDF.</p>
+          <div id="blog-list" class="admin-table-wrap">
+            <p style="color: #999; text-align: center; padding: 32px;">Loading...</p>
+          </div>
+        </div>
+      </div><!-- /tab-blog -->
+
       <!-- TAB: REGISTRATIONS -->
       <div id="tab-registrations" class="tab-panel">
         <div class="admin-section">
@@ -281,6 +301,7 @@
     </div>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
   <script src="js/admin.js"></script>
 </body>
 </html>

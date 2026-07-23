@@ -81,6 +81,102 @@
     }
   }
 
+  // ── BLOG (blog.html) ──────────────────────────────────────
+  var BLOG_CATEGORY_LABELS = {
+    pet: 'Animal Care',
+    nature: 'Plant Conservation',
+    education: 'Education',
+    environment: 'Environment',
+    community: 'Community',
+    general: 'General'
+  };
+  var _blogPosts = [];
+
+  function blogCardHtml(post, delay) {
+    var dateStr = post.created_at
+      ? new Date(post.created_at).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })
+      : '';
+    var catLabel = BLOG_CATEGORY_LABELS[post.category] || post.category || '';
+    return '<div class="news-card reveal reveal-delay-' + delay + '">' +
+      '<div class="news-thumb img-zoom">' +
+      (post.cover_image_url ? '<img src="' + esc(post.cover_image_url) + '" alt="' + esc(post.title) + '">' : '') +
+      (catLabel ? '<span class="news-cat">' + esc(catLabel) + '</span>' : '') +
+      '</div>' +
+      '<div class="news-body">' +
+      '<div class="news-meta">' +
+      (dateStr ? '<span><i class="fas fa-calendar-alt"></i> ' + dateStr + '</span>' : '') +
+      (post.author ? '<span><i class="fas fa-user"></i> ' + esc(post.author) + '</span>' : '') +
+      '</div>' +
+      '<h3><a href="blog-post.html?slug=' + encodeURIComponent(post.slug) + '">' + esc(post.title) + '</a></h3>' +
+      (post.summary ? '<p>' + esc(post.summary.substring(0, 140)) + (post.summary.length > 140 ? '…' : '') + '</p>' : '') +
+      '<a href="blog-post.html?slug=' + encodeURIComponent(post.slug) + '" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>' +
+      '</div></div>';
+  }
+
+  function renderBlogList(posts) {
+    var grid = document.getElementById('blog-grid');
+    if (!posts.length) {
+      grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #999; padding: 40px 0;">No stories published yet. Check back soon!</p>';
+      return;
+    }
+    grid.innerHTML = posts.map(function (p, i) { return blogCardHtml(p, (i % 3) + 1); }).join('');
+    observeReveal(grid);
+  }
+
+  async function loadPublicBlogs() {
+    var grid = document.getElementById('blog-grid');
+    var featured = document.getElementById('blog-featured');
+    if (!grid) return;
+
+    try {
+      var res = await fetch('/api/admin?action=blogs');
+      _blogPosts = (await res.json()) || [];
+      if (!_blogPosts.length) {
+        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #999; padding: 40px 0;">No stories published yet. Check back soon!</p>';
+        return;
+      }
+
+      if (featured) {
+        var f = _blogPosts[0];
+        var fDateStr = f.created_at
+          ? new Date(f.created_at).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })
+          : '';
+        var fCatLabel = BLOG_CATEGORY_LABELS[f.category] || f.category || '';
+        featured.innerHTML = '<div class="featured-post reveal">' +
+          '<div class="news-thumb">' +
+          (f.cover_image_url ? '<img src="' + esc(f.cover_image_url) + '" alt="' + esc(f.title) + '">' : '') +
+          '</div>' +
+          '<div class="news-body">' +
+          '<span class="featured-label">Featured Story</span>' +
+          '<div class="news-meta">' +
+          (fDateStr ? '<span><i class="fas fa-calendar-alt"></i> ' + fDateStr + '</span>' : '') +
+          (fCatLabel ? '<span><i class="fas fa-tag"></i> ' + esc(fCatLabel) + '</span>' : '') +
+          '</div>' +
+          '<h2>' + esc(f.title) + '</h2>' +
+          (f.summary ? '<p>' + esc(f.summary.substring(0, 200)) + (f.summary.length > 200 ? '…' : '') + '</p>' : '') +
+          '<a href="blog-post.html?slug=' + encodeURIComponent(f.slug) + '" class="btn btn-primary btn-arrow" style="margin-top: 16px; display: inline-flex; align-items: center; gap: 8px;">Read Full Story</a>' +
+          '</div></div>';
+        observeReveal(featured);
+      }
+
+      renderBlogList(_blogPosts.slice(featured ? 1 : 0));
+
+      document.querySelectorAll('.blog-tag').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          document.querySelectorAll('.blog-tag').forEach(function (b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          var tag = btn.dataset.tag;
+          var rest = _blogPosts.slice(featured ? 1 : 0);
+          var filtered = tag === 'all' ? rest : rest.filter(function (p) { return p.category === tag; });
+          renderBlogList(filtered);
+        });
+      });
+    } catch (err) {
+      console.error('Blog load error:', err);
+      grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #999; padding: 40px 0;">Failed to load stories.</p>';
+    }
+  }
+
   // ── FUNDRAISING (index.html) ──────────────────────────────
   async function loadPublicFundraising() {
     var section = document.getElementById('fundraising-public');
@@ -190,6 +286,7 @@
     loadPublicEvents();
     loadPublicProjects();
     loadPublicFundraising();
+    loadPublicBlogs();
 
     // Registration modal
     var regModal = document.getElementById('register-modal');

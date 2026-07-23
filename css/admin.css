@@ -721,3 +721,26 @@ html, body {
   .fundraising-cards { grid-template-columns: 1fr; }
   .campaign-actions { gap: 6px; }
 }
+
+/* Blog */
+.modal-box.modal-wide { max-width: 760px; }
+.badge-editor { background: rgba(33,150,243,0.1); color: #1565c0; }
+.badge-pdf { background: rgba(211,47,47,0.1); color: var(--danger); }
+
+.file-upload-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.file-upload-row .upload-thumb {
+  width: 60px;
+  height: 60px;
+  border-radius: 4px;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  display: none;
+}
+.file-upload-row .upload-filename { font-size: 13px; color: var(--text-light); }
+
+.content-type-toggle { display: flex; gap: 20px; margin-bottom: 4px; }
+.content-type-toggle label { display: flex; align-items: center; gap: 6px; font-weight: 500; font-size: 14px; cursor: pointer; text-transform: none; letter-spacing: 0; }
+.content-type-toggle input { width: auto; }
+
+.quill-editor-wrap .ql-container { min-height: 220px; font-size: 14px; }
+.quill-editor-wrap .ql-editor { min-height: 220px; }

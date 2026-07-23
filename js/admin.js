@@ -96,6 +96,8 @@
     if (_modalSubmitHandler) { form.removeEventListener('submit', _modalSubmitHandler); _modalSubmitHandler = null; }
     form.reset();
     document.getElementById('modal-fields').innerHTML = '';
+    document.querySelector('#admin-modal .modal-box').classList.remove('modal-wide');
+    _blogQuill = null;
   }
 
   function getField(id) {
@@ -121,6 +123,7 @@
         events: loadEvents,
         projects: loadProjects,
         fundraising: loadFundraising,
+        blog: loadBlogs,
         registrations: loadRegistrations,
         contacts: loadContacts,
         reviews: loadReviews,
@@ -571,6 +574,294 @@
       const val = this.value;
       const filtered = val === 'all' ? _projectsCache : _projectsCache.filter(function (p) { return p.status === val; });
       renderProjectsTable(filtered);
+    };
+  }
+
+  // ── BLOG ───────────────────────────────────────────────────
+  var _blogCache = [];
+  var _blogQuill = null;
+  var BLOG_CATEGORIES = [
+    { value: 'pet', label: 'Animal Care' },
+    { value: 'nature', label: 'Plant Conservation' },
+    { value: 'education', label: 'Education' },
+    { value: 'environment', label: 'Environment' },
+    { value: 'community', label: 'Community' },
+    { value: 'general', label: 'General' }
+  ];
+
+  function slugify(str) {
+    return String(str || '').toLowerCase().trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+  }
+
+  function uploadFileToServer(file, folder) {
+    return new Promise(function (resolve, reject) {
+      const reader = new FileReader();
+      reader.onload = async function () {
+        try {
+          const base64 = reader.result.split(',')[1];
+          const response = await fetch('/api/admin?action=upload', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + authToken, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ filename: file.name, type: file.type, data: base64, folder: folder })
+          });
+          if (!response.ok) {
+            const err = await response.json().catch(function () { return {}; });
+            throw new Error(err.error || 'Upload failed');
+          }
+          const data = await response.json();
+          resolve(data.url);
+        } catch (e) { reject(e); }
+      };
+      reader.onerror = function () { reject(new Error('Failed to read file')); };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function loadBlogs() {
+    try {
+      _blogCache = await apiRequest('GET', 'blogs') || [];
+      renderBlogsTable(_blogCache);
+    } catch {
+      document.getElementById('blog-list').innerHTML =
+        '<p style="color:#d32f2f;text-align:center;padding:32px;">Failed to load blog posts.</p>';
+    }
+  }
+
+  function renderBlogsTable(arr) {
+    const container = document.getElementById('blog-list');
+    if (!arr.length) {
+      container.innerHTML = '<div class="empty-state"><i class="fas fa-blog"></i><p>No blog posts yet. Add your first post!</p></div>';
+      bindBlogEvents();
+      return;
+    }
+    container.innerHTML = '<table class="admin-table"><thead><tr>' +
+      '<th>Title</th><th>Type</th><th>Category</th><th>Status</th><th>Actions</th>' +
+      '</tr></thead><tbody>' +
+      arr.map(function (b) {
+        const catLabel = (BLOG_CATEGORIES.find(function (c) { return c.value === b.category; }) || {}).label || b.category || '—';
+        return '<tr data-id="' + b.id + '">' +
+          '<td><strong>' + esc(b.title) + '</strong>' + (b.summary ? '<br><small style="color:#666;">' + esc(b.summary.substring(0, 60)) + (b.summary.length > 60 ? '…' : '') + '</small>' : '') + '</td>' +
+          '<td><span class="badge badge-' + b.content_type + '">' + (b.content_type === 'pdf' ? 'PDF' : 'Editor') + '</span></td>' +
+          '<td>' + esc(catLabel) + '</td>' +
+          '<td><span class="badge badge-' + (b.is_published ? 'published' : 'draft') + '">' + (b.is_published ? 'Published' : 'Draft') + '</span></td>' +
+          '<td class="action-cell">' +
+          '<button class="btn btn-sm ' + (b.is_published ? 'btn-outline' : 'btn-success') + ' publish-blog-btn" data-id="' + b.id + '" data-published="' + (b.is_published ? 'true' : 'false') + '" title="' + (b.is_published ? 'Unpublish' : 'Publish') + '"><i class="fas fa-' + (b.is_published ? 'eye-slash' : 'eye') + '"></i></button>' +
+          '<button class="btn btn-sm btn-outline edit-blog-btn" data-id="' + b.id + '"><i class="fas fa-edit"></i></button>' +
+          '<button class="btn btn-sm btn-danger delete-blog-btn" data-id="' + b.id + '"><i class="fas fa-trash"></i></button>' +
+          '</td></tr>';
+      }).join('') + '</tbody></table>';
+
+    bindBlogEvents();
+  }
+
+  function blogFieldsHtml(b) {
+    b = b || {};
+    const catOptions = BLOG_CATEGORIES.map(function (c) {
+      return '<option value="' + c.value + '"' + (b.category === c.value ? ' selected' : '') + '>' + c.label + '</option>';
+    }).join('');
+    const type = b.content_type || 'editor';
+    return '<div class="form-group"><label>Title *</label><input type="text" id="bl-title" value="' + esc(b.title || '') + '" required></div>' +
+      '<div class="modal-form-row">' +
+      '<div class="form-group"><label>Slug</label><input type="text" id="bl-slug" value="' + esc(b.slug || '') + '" placeholder="auto-generated-from-title"></div>' +
+      '<div class="form-group"><label>Category</label><select id="bl-category">' + catOptions + '</select></div>' +
+      '</div>' +
+      '<div class="modal-form-row">' +
+      '<div class="form-group"><label>Author</label><input type="text" id="bl-author" value="' + esc(b.author || '') + '"></div>' +
+      '<div class="form-group"><label>Sort Order</label><input type="number" id="bl-sort" value="' + (b.sort_order || 0) + '"></div>' +
+      '</div>' +
+      '<div class="form-group"><label>Summary</label><textarea id="bl-summary">' + esc(b.summary || '') + '</textarea></div>' +
+      '<div class="form-group"><label>Cover Image</label>' +
+      '<div class="file-upload-row">' +
+      '<button type="button" class="btn btn-outline btn-sm" id="bl-cover-btn"><i class="fas fa-image"></i> Choose Image</button>' +
+      '<input type="file" id="bl-cover-input" accept="image/jpeg,image/png,image/webp" style="display:none;">' +
+      '<img id="bl-cover-thumb" class="upload-thumb" src="' + esc(b.cover_image_url || '') + '" style="' + (b.cover_image_url ? 'display:block;' : '') + '">' +
+      '<span class="upload-filename" id="bl-cover-status">' + (b.cover_image_url ? 'Image selected' : 'No image selected') + '</span>' +
+      '</div>' +
+      '<input type="hidden" id="bl-cover-url" value="' + esc(b.cover_image_url || '') + '">' +
+      '</div>' +
+      '<div class="form-group"><label>Content Type</label>' +
+      '<div class="content-type-toggle">' +
+      '<label><input type="radio" name="bl-type" value="editor"' + (type === 'editor' ? ' checked' : '') + '> Website Editor</label>' +
+      '<label><input type="radio" name="bl-type" value="pdf"' + (type === 'pdf' ? ' checked' : '') + '> Upload PDF</label>' +
+      '</div></div>' +
+      '<div class="form-group" id="bl-editor-wrap" style="' + (type === 'pdf' ? 'display:none;' : '') + '">' +
+      '<label>Content</label>' +
+      '<div class="quill-editor-wrap"><div id="bl-editor"></div></div>' +
+      '</div>' +
+      '<div class="form-group" id="bl-pdf-wrap" style="' + (type === 'editor' ? 'display:none;' : '') + '">' +
+      '<label>PDF File</label>' +
+      '<div class="file-upload-row">' +
+      '<button type="button" class="btn btn-outline btn-sm" id="bl-pdf-btn"><i class="fas fa-file-pdf"></i> Choose PDF</button>' +
+      '<input type="file" id="bl-pdf-input" accept="application/pdf" style="display:none;">' +
+      '<span class="upload-filename" id="bl-pdf-status">' + (b.pdf_url ? 'PDF selected' : 'No PDF selected') + '</span>' +
+      '</div>' +
+      '<input type="hidden" id="bl-pdf-url" value="' + esc(b.pdf_url || '') + '">' +
+      '</div>' +
+      '<div class="form-group"><label>Visibility on Website</label><select id="bl-published"><option value="false"' + (!b.is_published ? ' selected' : '') + '>Draft — hidden from website</option><option value="true"' + (b.is_published ? ' selected' : '') + '>Published — visible on Blog page</option></select></div>';
+  }
+
+  function initBlogModal(b) {
+    document.querySelector('#admin-modal .modal-box').classList.add('modal-wide');
+
+    const titleEl = document.getElementById('bl-title');
+    const slugEl = document.getElementById('bl-slug');
+    titleEl.addEventListener('blur', function () {
+      if (!slugEl.value.trim()) slugEl.value = slugify(titleEl.value);
+    });
+
+    const editorWrap = document.getElementById('bl-editor-wrap');
+    const pdfWrap = document.getElementById('bl-pdf-wrap');
+    document.querySelectorAll('input[name="bl-type"]').forEach(function (r) {
+      r.addEventListener('change', function () {
+        const isPdf = this.value === 'pdf';
+        editorWrap.style.display = isPdf ? 'none' : '';
+        pdfWrap.style.display = isPdf ? '' : 'none';
+      });
+    });
+
+    _blogQuill = new Quill('#bl-editor', {
+      theme: 'snow',
+      modules: {
+        toolbar: {
+          container: [
+            ['bold', 'italic', 'underline'],
+            [{ header: [2, 3, false] }],
+            ['link', 'image'],
+            [{ list: 'ordered' }, { list: 'bullet' }],
+            ['clean']
+          ],
+          handlers: {
+            image: function () {
+              const input = document.createElement('input');
+              input.type = 'file';
+              input.accept = 'image/jpeg,image/png,image/webp,image/gif';
+              input.onchange = async function () {
+                const file = input.files[0];
+                if (!file) return;
+                try {
+                  const url = await uploadFileToServer(file, 'blog');
+                  const range = _blogQuill.getSelection(true);
+                  _blogQuill.insertEmbed(range.index, 'image', url);
+                  _blogQuill.setSelection(range.index + 1);
+                } catch { showToast('Image upload failed', 'error'); }
+              };
+              input.click();
+            }
+          }
+        }
+      }
+    });
+    if (b && b.content_html) _blogQuill.root.innerHTML = b.content_html;
+
+    const coverBtn = document.getElementById('bl-cover-btn');
+    const coverInput = document.getElementById('bl-cover-input');
+    const coverThumb = document.getElementById('bl-cover-thumb');
+    const coverStatus = document.getElementById('bl-cover-status');
+    const coverUrlEl = document.getElementById('bl-cover-url');
+    coverBtn.addEventListener('click', function () { coverInput.click(); });
+    coverInput.addEventListener('change', async function () {
+      const file = coverInput.files[0];
+      if (!file) return;
+      coverStatus.textContent = 'Uploading...';
+      try {
+        const url = await uploadFileToServer(file, 'blog');
+        coverUrlEl.value = url;
+        coverThumb.src = url;
+        coverThumb.style.display = 'block';
+        coverStatus.textContent = 'Image selected';
+      } catch { coverStatus.textContent = 'Upload failed'; }
+    });
+
+    const pdfBtn = document.getElementById('bl-pdf-btn');
+    const pdfInput = document.getElementById('bl-pdf-input');
+    const pdfStatus = document.getElementById('bl-pdf-status');
+    const pdfUrlEl = document.getElementById('bl-pdf-url');
+    pdfBtn.addEventListener('click', function () { pdfInput.click(); });
+    pdfInput.addEventListener('change', async function () {
+      const file = pdfInput.files[0];
+      if (!file) return;
+      pdfStatus.textContent = 'Uploading...';
+      try {
+        const url = await uploadFileToServer(file, 'blog');
+        pdfUrlEl.value = url;
+        pdfStatus.textContent = file.name;
+      } catch { pdfStatus.textContent = 'Upload failed'; }
+    });
+  }
+
+  function collectBlogPayload() {
+    const type = document.querySelector('input[name="bl-type"]:checked').value;
+    return {
+      title: getField('bl-title'),
+      slug: getField('bl-slug') || slugify(getField('bl-title')),
+      category: document.getElementById('bl-category').value,
+      author: getField('bl-author'),
+      summary: getField('bl-summary'),
+      content_type: type,
+      content_html: type === 'editor' ? _blogQuill.root.innerHTML : null,
+      pdf_url: type === 'pdf' ? getField('bl-pdf-url') : null,
+      cover_image_url: getField('bl-cover-url'),
+      sort_order: parseInt(getField('bl-sort'), 10) || 0,
+      is_published: document.getElementById('bl-published').value === 'true'
+    };
+  }
+
+  function bindBlogEvents() {
+    var container = document.getElementById('blog-list');
+
+    container.addEventListener('click', async function (e) {
+      const publishBtn = e.target.closest('.publish-blog-btn');
+      const editBtn = e.target.closest('.edit-blog-btn');
+      const deleteBtn = e.target.closest('.delete-blog-btn');
+
+      if (publishBtn) {
+        const id = publishBtn.dataset.id;
+        const current = publishBtn.dataset.published === 'true';
+        publishBtn.disabled = true;
+        try {
+          await apiRequest('PATCH', 'blogs', id, { is_published: !current });
+          showToast(current ? 'Post unpublished' : 'Post published!');
+          await loadBlogs();
+        } catch { showToast('Failed to update', 'error'); publishBtn.disabled = false; }
+      }
+
+      if (editBtn) {
+        const id = editBtn.dataset.id;
+        const b = _blogCache.find(function (x) { return x.id === id; });
+        if (!b) return;
+        showModal('Edit Post', blogFieldsHtml(b), async function () {
+          const title = getField('bl-title');
+          if (!title) { showToast('Title is required', 'error'); return; }
+          try {
+            await apiRequest('PATCH', 'blogs', id, collectBlogPayload());
+            closeModal(); showToast('Post updated!'); await loadBlogs();
+          } catch { showToast('Failed to update post', 'error'); }
+        });
+        initBlogModal(b);
+      }
+
+      if (deleteBtn) {
+        const id = deleteBtn.dataset.id;
+        if (!confirm('Delete this blog post?')) return;
+        try {
+          await apiRequest('DELETE', 'blogs', id);
+          showToast('Post deleted'); await loadBlogs();
+        } catch { showToast('Failed to delete', 'error'); }
+      }
+    }, { once: false });
+
+    document.getElementById('add-blog-btn').onclick = function () {
+      showModal('Add Post', blogFieldsHtml(), async function () {
+        const title = getField('bl-title');
+        if (!title) { showToast('Title is required', 'error'); return; }
+        try {
+          await apiRequest('POST', 'blogs', null, collectBlogPayload());
+          closeModal(); showToast('Post added!'); await loadBlogs();
+        } catch { showToast('Failed to add post', 'error'); }
+      });
+      initBlogModal();
     };
   }
 
