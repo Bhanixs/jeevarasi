@@ -68,7 +68,7 @@ async function dbFetch(table, method, body, qs) {
 async function notifyEmail(data) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return;
-  const to = process.env.NOTIFY_EMAIL || 'info@jeevarsi.org';
+  const to = process.env.NOTIFY_EMAIL || 'jeevarasidigital@gmail.com';
   const html = `<h2 style="color:#5a9e2f">New Contact Enquiry — Jeevarasi</h2>
 <table style="border-collapse:collapse;font-family:sans-serif;font-size:14px">
   <tr><td style="padding:6px 12px;font-weight:700;color:#333">Name</td><td style="padding:6px 12px">${data.name}</td></tr>
