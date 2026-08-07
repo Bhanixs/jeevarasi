@@ -195,7 +195,7 @@
         var delay = (i % 3) + 1;
         var donateBtn = c.qr_code_url
           ? '<button class="btn btn-primary pub-donate-btn" style="margin-top:16px;width:100%;" data-qr="' + esc(c.qr_code_url) + '" data-title="' + esc(c.title) + '"><i class="fas fa-qrcode"></i> Donate Now</button>'
-          : '';
+          : '<a href="contact" class="btn btn-primary" style="margin-top:16px;width:100%;text-align:center;"><i class="fas fa-hand-holding-heart"></i> Contact Us to Donate</a>';
         return '<div class="pub-campaign-card reveal reveal-delay-' + delay + '">' +
           (c.image_url ? '<img src="' + esc(c.image_url) + '" alt="' + esc(c.title) + '" style="width:calc(100% + 56px);height:180px;object-fit:cover;margin:-28px -28px 12px;border-radius:4px 4px 0 0;">' : '') +
           '<h3>' + esc(c.title) + '</h3>' +
