@@ -1,0 +1,217 @@
+{
+  "jeevarasi_stats": [
+    {
+      "id": "0d7b2bce-0523-4f38-90f3-b64fef825632",
+      "label": "Trees Planted",
+      "value": 300000,
+      "suffix": "+",
+      "icon_class": "fas fa-tree",
+      "sort_order": 1,
+      "created_at": "2026-09-09T15:13:54.889Z",
+      "updated_at": "2026-09-09T15:13:54.889Z"
+    },
+    {
+      "id": "146cee8e-7159-46c4-8a00-72d8bed6f365",
+      "label": "Hectares Restored",
+      "value": 200,
+      "suffix": "+",
+      "icon_class": "fas fa-map-marked-alt",
+      "sort_order": 2,
+      "created_at": "2026-09-09T15:13:54.889Z",
+      "updated_at": "2026-09-09T15:13:54.889Z"
+    },
+    {
+      "id": "05dcfba3-6364-45ff-b445-7fda12988baa",
+      "label": "Plastic Collected (Tonnes)",
+      "value": 15,
+      "suffix": "+ T",
+      "icon_class": "fas fa-recycle",
+      "sort_order": 3,
+      "created_at": "2026-09-09T15:13:54.889Z",
+      "updated_at": "2026-09-09T15:13:54.889Z"
+    },
+    {
+      "id": "982c0c55-8c4b-4281-8cb0-ca30e2008463",
+      "label": "Students Reached",
+      "value": 3000,
+      "suffix": "+",
+      "icon_class": "fas fa-users",
+      "sort_order": 4,
+      "created_at": "2026-09-09T15:13:54.889Z",
+      "updated_at": "2026-09-09T15:13:54.889Z"
+    },
+    {
+      "id": "7e81e059-7f4d-48aa-a60b-29a625c702e0",
+      "label": "Community Clean-Up Drives",
+      "value": 20,
+      "suffix": "+",
+      "icon_class": "fas fa-hands-helping",
+      "sort_order": 5,
+      "created_at": "2026-09-09T15:13:54.889Z",
+      "updated_at": "2026-09-09T15:13:54.889Z"
+    },
+    {
+      "id": "1c781b2d-6db3-4e61-8df3-df2ff9016bfc",
+      "label": "Conservation Workshops",
+      "value": 10,
+      "suffix": "+",
+      "icon_class": "fas fa-chalkboard-teacher",
+      "sort_order": 6,
+      "created_at": "2026-09-09T15:13:54.889Z",
+      "updated_at": "2026-09-09T15:13:54.889Z"
+    }
+  ],
+  "jeevarasi_events": [
+    {
+      "id": "d43cc6dc-7c58-402d-a384-c8d9c5f96e75",
+      "title": "Mangrove Sapling Plantation Drive",
+      "description": "Join our volunteers and conservation team in restoring the coastal mangrove ecosystem. Saplings, equipment, and refreshments provided.",
+      "event_date": "2025-10-18",
+      "location": "Kottakuppam / Auroville Wetland Area",
+      "category": "Environment",
+      "image_url": "images/drive/mangrove-day-event.jpg",
+      "status": "open",
+      "is_published": true,
+      "created_at": "2026-09-09T15:13:54.889Z",
+      "updated_at": "2026-09-09T15:13:54.889Z"
+    },
+    {
+      "id": "904d9e66-230b-45d9-90c5-bdc37fb33949",
+      "title": "Youth Citizen Scientist Workshop",
+      "description": "Hands-on experiential workshop for students to explore local bird species, butterfly tagging, and sustainable soil conservation.",
+      "event_date": "2025-11-08",
+      "location": "Jeevarasi Nature School Campus",
+      "category": "Education",
+      "image_url": "images/drive/student-field-visit.jpg",
+      "status": "open",
+      "is_published": true,
+      "created_at": "2026-09-09T15:13:54.889Z",
+      "updated_at": "2026-09-09T15:13:54.889Z"
+    }
+  ],
+  "jeevarasi_projects": [
+    {
+      "id": "0e7d0318-c345-487a-8d62-ce1dc9f99739",
+      "title": "Planting 3 Lakhs+ Trees Across Pondicherry",
+      "description": "Community-driven mass afforestation initiative restoring indigenous flora and providing sanctuary for birds and pollinators.",
+      "status": "live",
+      "year": "2023 – 2025",
+      "image_url": "images/drive/sapling-planting.jpg",
+      "sort_order": 1,
+      "is_published": true,
+      "created_at": "2026-09-09T15:13:54.889Z",
+      "updated_at": "2026-09-09T15:13:54.889Z"
+    },
+    {
+      "id": "df96e924-1e5f-4450-bb12-f349cfecbcd7",
+      "title": "Plastic Clean-Up & Wetland Restoration",
+      "description": "Over 15 tonnes of plastic waste cleared from coastal waterways in collaboration with university NSS volunteers.",
+      "status": "completed",
+      "year": "2024",
+      "image_url": "images/drive/nss-student-drive.jpg",
+      "sort_order": 2,
+      "is_published": true,
+      "created_at": "2026-09-09T15:13:54.889Z",
+      "updated_at": "2026-09-09T15:13:54.889Z"
+    }
+  ],
+  "jeevarasi_fundraising": [
+    {
+      "id": "d35f5809-a26e-4d55-828d-e81534e40ef7",
+      "title": "Wild Sapling Nursery & Bird Nesting Project",
+      "description": "Help us expand our native tree sapling nursery and install 500 nesting boxes for breeding sparrows and wild birds.",
+      "goal_amount": 500000,
+      "raised_amount": 340000,
+      "status": "active",
+      "image_url": "images/drive/tree-planting-fieldwork.jpg",
+      "start_date": "2025-01-01",
+      "end_date": "2025-12-31",
+      "qr_code_url": "",
+      "is_published": true,
+      "created_at": "2026-09-09T15:13:54.889Z",
+      "updated_at": "2026-09-09T15:13:54.889Z"
+    }
+  ],
+  "jeevarasi_blogs": [
+    {
+      "id": "aaa47c70-7571-4192-abd6-c01f43954ab9",
+      "title": "Jeevarasi Trust Founded — A New Chapter in Conservation",
+      "slug": "jeevarasi-trust-founded",
+      "category": "environment",
+      "author": "Jeevarasi Team",
+      "summary": "Jeevarasi — The Nature School was founded as a Pondicherry-based Trust with a vision to bring people closer to the wild through experiential education and conservation.",
+      "content_type": "editor",
+      "content_html": "<p>Jeevarasi — The Nature School was founded as a Pondicherry-based Trust with a vision to bring people closer to the wild through experiential education and conservation. We focus on creating awareness by educating about the importance of species in their natural habitat.</p>",
+      "cover_image_url": "images/drive/sapling-planting.jpg",
+      "is_published": true,
+      "sort_order": 1,
+      "created_at": "2026-09-09T15:13:54.889Z",
+      "updated_at": "2026-09-09T15:13:54.889Z"
+    },
+    {
+      "id": "68f15617-1ffe-4e57-bc15-5da87641bb7f",
+      "title": "Experiential Education at Jeevarasi — Learning by Experience",
+      "slug": "experiential-education-at-jeevarasi",
+      "category": "education",
+      "author": "Education Team",
+      "summary": "Our experiential teaching approach helps guests understand conservation better through observation, touch, feel, and build experiences — reconnecting them with nature.",
+      "content_type": "editor",
+      "content_html": "<p>Our experiential teaching approach helps guests understand conservation better through observation, touch, feel, and build experiences — reconnecting them with nature.</p>",
+      "cover_image_url": "images/drive/nss-student-drive.jpg",
+      "is_published": true,
+      "sort_order": 2,
+      "created_at": "2026-09-09T15:13:54.889Z",
+      "updated_at": "2026-09-09T15:13:54.889Z"
+    }
+  ],
+  "jeevarasi_reviews": [
+    {
+      "id": "11e3cb31-6d41-4739-a2c6-f16c80c9aad4",
+      "name": "Dr. Priya Ramesh",
+      "rating": 5,
+      "message": "Visiting Jeevarasi was an unforgettable experience for our school students. Seeing animals and exotic plants in a protected, loving sanctuary taught them true respect for wildlife.",
+      "approved": true,
+      "created_at": "2026-09-09T15:13:54.889Z",
+      "updated_at": "2026-09-09T15:13:54.889Z"
+    },
+    {
+      "id": "9d9880b3-d777-4e89-8732-d801ea8b3e91",
+      "name": "Arun Kumar",
+      "rating": 5,
+      "message": "Volunteered for the tree planting drive in Pondicherry. The passion and dedication of the Jeevarasi team is inspiring. Everyone should visit and support their work!",
+      "approved": true,
+      "created_at": "2026-09-09T15:13:54.889Z",
+      "updated_at": "2026-09-09T15:13:54.889Z"
+    },
+    {
+      "id": "1cc629d3-79a9-41fa-812a-b8b22bbf07b2",
+      "created_at": "2026-09-09T15:13:57.223Z",
+      "updated_at": "2026-09-09T15:13:57.223Z",
+      "name": "John Doe",
+      "rating": 5,
+      "message": "Wonderful place to learn about nature and exotic plants!",
+      "approved": false
+    }
+  ],
+  "jeevarasi_contacts": [
+    {
+      "id": "a025fcdb-65f4-41ba-8510-91dd28c40053",
+      "created_at": "2026-09-09T15:13:54.909Z",
+      "updated_at": "2026-09-09T15:13:54.909Z",
+      "name": "Test Volunteer",
+      "email": "testvolunteer@example.com",
+      "phone": "9876543210",
+      "subject": "volunteer",
+      "message": "I want to volunteer for the upcoming tree plantation drive!"
+    }
+  ],
+  "jeevarasi_newsletter": [
+    {
+      "id": "e0cc636e-597c-4793-8eb0-a3ac76ab87b9",
+      "created_at": "2026-09-09T15:13:57.181Z",
+      "updated_at": "2026-09-09T15:13:57.181Z",
+      "email": "subscriber@example.com"
+    }
+  ],
+  "jeevarasi_event_registrations": []
+}

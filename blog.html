@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-2MJJTBC17D"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-2MJJTBC17D');
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog &amp; Stories — Jeevarasi | The Nature School | Conservation &amp; Education Stories</title>
+  <meta name="description" content="Read stories, field reports, and conservation updates from Jeevarasi — The Nature School in Pondicherry. Experiential education and wildlife conservation.">
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="images/favicon.png">
+  <link rel="apple-touch-icon" href="images/favicon.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <style>
+    /* Blog-specific extras */
+    .blog-header-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 30px; }
+    .blog-tag { background: #edf7da; color: var(--primary-dark); padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; font-family: var(--font-nav); letter-spacing: 0.5px; cursor: pointer; transition: var(--transition); }
+    .blog-tag:hover, .blog-tag.active { background: var(--primary); color: var(--white); }
+    .news-card .news-body p { -webkit-line-clamp: 3; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
+    .featured-post { display: grid; grid-template-columns: 1.3fr 1fr; gap: 0; background: var(--white); border-radius: 4px; overflow: hidden; box-shadow: var(--shadow-hover); margin-bottom: 50px; }
+    .featured-post .news-thumb { height: 100%; min-height: 380px; }
+    .featured-post .news-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .featured-post .news-body { padding: 40px; display: flex; flex-direction: column; justify-content: center; }
+    .featured-label { display: inline-block; background: var(--primary); color: var(--white); font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 5px 14px; border-radius: 2px; margin-bottom: 16px; }
+    .featured-post .news-body h2 { font-size: clamp(20px, 2.5vw, 26px); margin-bottom: 14px; line-height: 1.4; }
+    .featured-post .news-body p { font-size: 15px; }
+    @media (max-width: 768px) {
+      .featured-post { grid-template-columns: 1fr; }
+      .featured-post .news-thumb { min-height: 250px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="container">
+      <div class="top-bar-left">
+        <div class="top-bar-info"><i class="fas fa-phone fa-rotate-90"></i><a href="tel:09842829770">098428 29770</a></div>
+        <div class="top-bar-info"><i class="fas fa-envelope"></i><a href="mailto:jeevarasidigital@gmail.com">jeevarasidigital@gmail.com</a></div>
+        <div class="top-bar-info"><i class="fas fa-map-marker-alt"></i><span>Pondicherry, India</span></div>
+      </div>
+      <div class="top-bar-right">
+        <div class="social-icons">
+          <a href="https://www.facebook.com/share/1DaMnP4q9s/" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="https://www.instagram.com/jeevarasi.school?igsh=MTRub204a3V6cHEzdQ==" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+          <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="site-header" id="site-header">
+    <div class="container">
+      <div class="header-inner">
+        <div class="site-logo">
+          <a href="/">
+            <img src="images/logo.png" alt="Jeevarasi Logo" onerror="this.style.display='none'">
+            <div class="logo-text">Jeevarasi<span>The Nature School</span></div>
+          </a>
+        </div>
+        <button class="menu-toggle" aria-controls="main-navigation" aria-expanded="false" aria-label="Toggle menu">
+          <span></span><span></span><span></span>
+        </button>
+        <nav class="main-nav" id="main-navigation">
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="about">About</a></li>
+            <li><a href="/#focus-areas">Focus Areas</a></li>
+            <li><a href="/#gallery">Gallery</a></li>
+            <li><a href="about#projects-public">Projects</a></li>
+            <li class="active"><a href="blog">Blog</a></li>
+            <li><a href="contact">Contact</a></li>
+          </ul>
+        </nav>
+        <div class="header-donate">
+          <a href="contact#volunteer" class="btn btn-primary">Get Involved</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- PAGE BANNER -->
+  <div class="page-banner">
+    <div class="container">
+      <h1>Stories from the Nature School,<br>Moments that Matter</h1>
+      <div class="breadcrumb">
+        <a href="/">Home</a>
+        <span>/</span>
+        <span>Blog &amp; Stories</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOG SECTION -->
+  <section class="blog-section">
+    <div class="container">
+
+      <!-- Filter Tags -->
+      <div class="blog-header-meta reveal">
+        <button class="blog-tag active" data-tag="all" id="blog-tag-all">All Stories</button>
+        <button class="blog-tag" data-tag="pet" id="blog-tag-pet">Animal Care</button>
+        <button class="blog-tag" data-tag="nature" id="blog-tag-nature">Plant Conservation</button>
+        <button class="blog-tag" data-tag="education" id="blog-tag-education">Education</button>
+        <button class="blog-tag" data-tag="environment" id="blog-tag-environment">Environment</button>
+        <button class="blog-tag" data-tag="community" id="blog-tag-community">Community</button>
+      </div>
+
+      <!-- Featured Post (populated by js/public-content.js) -->
+      <div id="blog-featured"></div>
+
+      <!-- Blog Grid (populated by js/public-content.js) -->
+      <div class="blog-grid-full" id="blog-grid">
+        <p style="grid-column: 1/-1; text-align: center; color: #999; padding: 40px 0;">Loading stories…</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- INSTAGRAM FEATURED POST -->
+  <section class="instagram-post-section" style="padding: 50px 0 0;">
+    <div class="container">
+      <div class="instagram-post-card reveal" style="display: flex; align-items: center; gap: 32px; background: linear-gradient(135deg, #f9f0ff 0%, #fff5f0 100%); border-radius: 8px; padding: 32px 40px; box-shadow: var(--shadow); margin-bottom: 0;">
+        <div style="flex-shrink: 0; width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); display: flex; align-items: center; justify-content: center;">
+          <i class="fab fa-instagram" style="color: #fff; font-size: 24px;"></i>
+        </div>
+        <div style="flex: 1;">
+          <p style="font-size: 13px; color: var(--text-light); margin: 0 0 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Latest on Instagram</p>
+          <p style="margin: 0 0 14px; font-size: 15px; color: var(--text);">Follow our latest updates, wildlife moments, and conservation stories on Instagram.</p>
+          <a href="https://www.instagram.com/p/DZpQOzAiqP_/?igsh=ZzM1bjRwaGM4eTB1" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-arrow" style="display: inline-flex; align-items: center; gap: 8px;">View Post on Instagram <i class="fab fa-instagram"></i></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEWSLETTER -->
+  <section id="newsletter">
+    <div class="container">
+      <div class="newsletter-inner">
+        <div class="newsletter-text">
+          <h3>Never Miss a Nature School Update</h3>
+          <p>Get conservation stories, Nature School updates, and event announcements straight to your inbox.</p>
+        </div>
+        <form class="newsletter-form" action="#" method="post">
+          <label for="nl-email-blog" class="sr-only">Email</label>
+          <input type="email" id="nl-email-blog" placeholder="Your email address" required>
+          <button type="submit">Subscribe</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer id="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col footer-about">
+          <div class="footer-logo">
+            <img src="images/logo.png" alt="Jeevarasi" onerror="this.style.display='none'">
+            <span class="footer-logo-text">Jeevarasi</span>
+          </div>
+          <p>Jeevarasi — The Nature School is a one-of-a-kind educational and experiential park in Pondicherry, bringing people closer to wildlife through conservation, education, and safe coexistence.</p>
+          <div class="footer-social">
+            <a href="https://www.facebook.com/share/1DaMnP4q9s/" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://www.instagram.com/jeevarasi.school?igsh=MTRub204a3V6cHEzdQ==" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+            <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h5>Quick Links</h5>
+          <nav class="footer-links">
+            <a href="/">Home</a>
+            <a href="about">About Us</a>
+            <a href="/#focus-areas">Focus Areas</a>
+            <a href="/#gallery">Gallery</a>
+            <a href="blog">Blog &amp; Stories</a>
+            <a href="contact">Contact</a>
+          </nav>
+        </div>
+        <div class="footer-col">
+          <h5>Contact Us</h5>
+          <div class="footer-contact-item"><i class="fas fa-phone fa-rotate-90"></i><div><a href="tel:09842829770">098428 29770</a></div></div>
+          <div class="footer-contact-item"><i class="fas fa-envelope"></i><div><a href="mailto:jeevarasidigital@gmail.com">jeevarasidigital@gmail.com</a></div></div>
+          <div class="footer-contact-item"><i class="fas fa-map-marker-alt"></i><div>Kottakuppam, Auroville, Tamil Nadu 605104</div></div>
+        </div>
+      </div>
+      <hr class="footer-divider">
+    </div>
+    <div class="copyright-bar">
+      <p>&copy; 2025 <a href="/">Jeevarasi</a>. All rights reserved.<a href="admin" style="margin-left: 12px; color: inherit; opacity: 0.6; font-size: 12px;">Admin Login</a></p>
+    </div>
+  </footer>
+
+  <button id="scroll-top" aria-label="Scroll to top"><i class="fas fa-chevron-up"></i></button>
+  <script src="js/counter.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/public-content.js"></script>
+</body>
+</html>
