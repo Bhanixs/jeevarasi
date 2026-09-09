@@ -6,12 +6,13 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+
 const ADMIN_EMAIL    = process.env.ADMIN_EMAIL || 'admin@jeevarsi.org';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Jeevarsi@2025';
-const STORE_PREFIX   = 'jeevarasi-gallery/';
-const BUCKET         = 'gallery';
-
+const ADMIN_EMAIL    = 'admin@jeevarsi.org';
+const ADMIN_PASSWORD = 'Jeevarsi@2025';
 const DB_TABLES = {
+
   stats:               'jeevarasi_stats',
   events:              'jeevarasi_events',
   projects:            'jeevarasi_projects',
@@ -31,11 +32,29 @@ const DB_ORDER = {
   reviews:             'created_at.desc',
   blogs:               'sort_order.asc,created_at.desc',
   newsletter:          'subscribed_at.desc',
-  event_registrations: 'created_at.desc'
+  event_registrations: 'created_at.desc',
+  stats:       'jeevarasi_stats',
+  events:      'jeevarasi_events',
+  projects:    'jeevarasi_projects',
+  fundraising: 'jeevarasi_fundraising',
+  contacts:    'jeevarasi_contacts',
+  reviews:     'jeevarasi_reviews',
+  blogs:       'jeevarasi_blogs'
+};
+const DB_ORDER = {
+  stats:       'sort_order.asc,created_at.asc',
+  events:      'event_date.asc',
+  projects:    'sort_order.asc,created_at.desc',
+  fundraising: 'created_at.desc',
+  contacts:    'created_at.desc',
+  reviews:     'created_at.desc',
+  blogs:       'sort_order.asc,created_at.desc'
+ 
 };
 
 // In-memory session tokens (cleared on server restart)
 const tokens = new Set();
+
 
 // ── LOCAL DB FALLBACK (for development & offline) ───────────
 let dataDir = path.join(__dirname, 'data');
@@ -332,6 +351,12 @@ function localDbFetch(table, method, body, qs) {
 // ── SUPABASE CONFIG ───────────────────────────────────────────
 function sbUrl() {
   const u = process.env.SUPABASE_URL || '';
+
+// ── SUPABASE CONFIG ───────────────────────────────────────────
+function sbUrl() {
+  const u = process.env.SUPABASE_URL || '';
+  // Strip /rest/v1 or /storage/v1 suffix if user included it
+ 
   return u.replace(/\/(rest|storage)\/v1\/?.*$/, '').replace(/\/$/, '');
 }
 function sbAnon()    { return process.env.SUPABASE_ANON    || ''; }
@@ -343,6 +368,7 @@ function isAuthed(req) {
   const auth = (req.headers.authorization || '').replace('Bearer ', '');
   return tokens.has(auth);
 }
+
 
 // ── SUPABASE DB HELPER WITH LOCAL FALLBACK ─────────────────────
 async function dbFetch(table, method, body, qs) {
@@ -370,6 +396,22 @@ async function dbFetch(table, method, body, qs) {
     console.warn('[Supabase unreachable, falling back to local DB]:', err.message);
     return localDbFetch(table, method, body, qs);
   }
+
+// ── SUPABASE DB HELPER ────────────────────────────────────────
+async function dbFetch(table, method, body, qs) {
+  const url = `${sbUrl()}/rest/v1/${table}${qs ? '?' + qs : ''}`;
+  const headers = { apikey: sbAnon(), 'content-type': 'application/json' };
+  if (method !== 'GET') {
+    headers.authorization = `Bearer ${sbService()}`;
+    headers.prefer = 'return=representation';
+  }
+  const opts = { method, headers };
+  if (body !== null && body !== undefined) opts.body = JSON.stringify(body);
+  const r = await fetch(url, opts);
+  if (r.status === 204) return null;
+  if (!r.ok) { const t = await r.text(); throw new Error(`${r.status}: ${t}`); }
+  return r.json();
+ 
 }
 
 // ── NOTIFICATION HELPERS ──────────────────────────────────────
@@ -439,6 +481,7 @@ app.post('/api/admin', express.json({ limit: '55mb' }), async (req, res) => {
   // Login — no auth required
   if (action === 'login') {
     const { email, password } = req.body || {};
+
     const allowedEmails = [
       (process.env.ADMIN_EMAIL || '').trim().toLowerCase(),
       'admin@jeevarsi.org',
@@ -449,6 +492,10 @@ app.post('/api/admin', express.json({ limit: '55mb' }), async (req, res) => {
     if (!allowedEmails.includes((email || '').trim().toLowerCase()) || password !== allowedPassword) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
+
+    if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD)
+      return res.status(401).json({ error: 'Invalid email or password' });
+ 
     const token = crypto.randomBytes(32).toString('hex');
     tokens.add(token);
     return res.json({ token });
@@ -515,12 +562,17 @@ app.post('/api/admin', express.json({ limit: '55mb' }), async (req, res) => {
 
   if (!isAuthed(req)) return res.status(401).json({ error: 'Unauthorized' });
 
+
   // Upload to Supabase Storage (with local fallback)
+
+  // Upload to Supabase Storage
+ 
   if (action === 'upload') {
     try {
       const { filename, type, data, folder } = req.body || {};
       if (!filename || !data) return res.status(400).json({ error: 'Missing file data' });
       const buf    = Buffer.from(data, 'base64');
+
       if (!isSupabaseConfigured()) {
         const uploadDir = path.join(__dirname, 'images', 'uploads');
         try {
@@ -532,6 +584,8 @@ app.post('/api/admin', express.json({ limit: '55mb' }), async (req, res) => {
           return res.json({ url: `data:${type || 'image/jpeg'};base64,${data}` });
         }
       }
+
+ 
       const prefix = folder ? `jeevarasi-${folder}/` : STORE_PREFIX;
       const fp     = `${prefix}${Date.now()}-${path.basename(filename)}`;
       const r = await fetch(`${sbUrl()}/storage/v1/object/${BUCKET}/${encodePath(fp)}`, {
@@ -544,7 +598,11 @@ app.post('/api/admin', express.json({ limit: '55mb' }), async (req, res) => {
     } catch (e) { return res.status(500).json({ error: e.message }); }
   }
 
+
   // DB create (stats / events / projects / fundraising / contacts / etc)
+
+  // DB create (stats / events / projects / fundraising / contacts)
+ 
   if (DB_TABLES[action]) {
     try   { return res.json(await dbFetch(DB_TABLES[action], 'POST', req.body, null)); }
     catch (e) { return res.status(500).json({ error: e.message }); }
@@ -557,6 +615,7 @@ app.post('/api/admin', express.json({ limit: '55mb' }), async (req, res) => {
 app.get('/api/admin', async (req, res) => {
   const action = req.query.action;
 
+
   // newsletter — requires auth
   if (action === 'newsletter') {
     if (!isAuthed(req)) return res.status(401).json({ error: 'Unauthorized' });
@@ -566,6 +625,21 @@ app.get('/api/admin', async (req, res) => {
   }
 
   // event_registrations — requires auth
+
+  // newsletter — requires auth, uses service role
+  if (action === 'newsletter') {
+    if (!isAuthed(req)) return res.status(401).json({ error: 'Unauthorized' });
+    try {
+      const r = await fetch(`${sbUrl()}/rest/v1/jeevarasi_newsletter?order=subscribed_at.desc`, {
+        headers: { apikey: sbAnon(), authorization: `Bearer ${sbService()}`, 'content-type': 'application/json' }
+      });
+      if (!r.ok) { const t = await r.text(); throw new Error(t); }
+      return res.json(await r.json() || []);
+    } catch (e) { return res.status(500).json({ error: e.message }); }
+  }
+
+  // event_registrations — requires auth, uses service role
+ 
   if (action === 'event_registrations') {
     if (!isAuthed(req)) return res.status(401).json({ error: 'Unauthorized' });
     const eventId = req.query.event_id;
@@ -573,16 +647,30 @@ app.get('/api/admin', async (req, res) => {
       ? `event_id=eq.${encodeURIComponent(eventId)}&order=created_at.desc`
       : `order=created_at.desc`;
     try {
+
       return res.json(await dbFetch('jeevarasi_event_registrations', 'GET', null, qs) || []);
     } catch (e) { return res.status(500).json({ error: e.message }); }
   }
 
   // contacts — requires auth
+
+      const r = await fetch(`${sbUrl()}/rest/v1/jeevarasi_event_registrations?${qs}`, {
+        headers: { apikey: sbAnon(), authorization: `Bearer ${sbService()}`, 'content-type': 'application/json' }
+      });
+      if (!r.ok) { const t = await r.text(); throw new Error(t); }
+      return res.json(await r.json() || []);
+    }
+    catch (e) { return res.status(500).json({ error: e.message }); }
+  }
+
+  // contacts — requires auth, uses service role
+ 
   if (action === 'contacts') {
     if (!isAuthed(req)) return res.status(401).json({ error: 'Unauthorized' });
     const id = req.query.id;
     const qs = id ? `id=eq.${encodeURIComponent(id)}` : `order=created_at.desc`;
     try {
+
       return res.json(await dbFetch('jeevarasi_contacts', 'GET', null, qs) || []);
     } catch (e) { return res.status(500).json({ error: e.message }); }
   }
@@ -599,6 +687,17 @@ app.get('/api/admin', async (req, res) => {
       ];
       return res.json(defaultMedia);
     }
+
+      const r = await fetch(`${sbUrl()}/rest/v1/jeevarasi_contacts?${qs}`, {
+        headers: { apikey: sbAnon(), authorization: `Bearer ${sbService()}`, 'content-type': 'application/json' }
+      });
+      if (!r.ok) { const t = await r.text(); throw new Error(t); }
+      return res.json(await r.json() || []);
+    } catch (e) { return res.status(500).json({ error: e.message }); }
+  }
+
+  // Gallery list from Supabase Storage
+  if (action === 'gallery') {
     try {
       const r = await fetch(`${sbUrl()}/storage/v1/object/list/${BUCKET}`, {
         method:  'POST',
