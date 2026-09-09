@@ -386,8 +386,10 @@ async function dbFetch(table, method, body, qs) {
   try {
     const url = `${sbUrl()}/rest/v1/${table}${qs ? '?' + qs : ''}`;
     const headers = { apikey: sbAnon(), 'content-type': 'application/json' };
-    if (method !== 'GET') {
+    if (sbService()) {
       headers.authorization = `Bearer ${sbService()}`;
+    }
+    if (method !== 'GET') {
       headers.prefer = 'return=representation';
     }
     const opts = { method, headers };
